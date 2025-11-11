@@ -1,10 +1,6 @@
 import { Paper, Stack, Typography, Box } from '@mui/material'
-import { useLocation, useNavigate } from 'react-router'
-import workusLogo from '../../../assets/workUs.png'
-import { AppShell } from '../../../shared/layout'
 import { AppButton } from '../../../shared/ui'
-import { TOKEN_STORAGE_KEY } from '../../../features/auth/login/constants'
-import { createMainNavItems } from '../../../shared/config/navigation'
+import {useNavigate} from "react-router";
 
 const storeStats = [
     { label: '직원 수', value: '20명' },
@@ -14,23 +10,11 @@ const storeStats = [
 ]
 
 export function HomePage() {
-    const navigate = useNavigate()
-    const location = useLocation()
-    const navItems = createMainNavItems(location.pathname, navigate)
 
-    const handleLogout = () => {
-        localStorage.removeItem(TOKEN_STORAGE_KEY)
-        navigate('/login')
-    }
+    const navigate = useNavigate();
 
     return (
-        <AppShell
-            brand={{ logo: workusLogo, alt: 'WorkUs' }}
-            sectionLabel="메인"
-            accountInfo={{ name: 'admin', detail: '시스템 관리자' }}
-            onLogout={handleLogout}
-            navItems={navItems}
-        >
+        <>
             <Stack spacing={5}>
                 <Stack spacing={1}>
                     <Typography variant="h3" component="h1">
@@ -83,6 +67,6 @@ export function HomePage() {
                     </Paper>
                 </Box>
             </Stack>
-        </AppShell>
+        </>
     )
 }

@@ -2,6 +2,7 @@ import type { PropsWithChildren, ReactNode } from 'react'
 import { useState } from 'react'
 import { AppBar, Avatar, Box, Button, Container, Divider, Menu, Stack, Toolbar, Typography } from '@mui/material'
 import { NavMenu } from '../../ui'
+import {useNavigate} from "react-router";
 
 type AppShellProps = PropsWithChildren<{
     brand: {
@@ -14,6 +15,7 @@ type AppShellProps = PropsWithChildren<{
         name: string
         detail?: string
         avatarUrl?: string
+        compName?: string
     }
     footer?: ReactNode
     onLogout?: () => void
@@ -27,8 +29,9 @@ type AppShellPropsExtended = AppShellProps & {
     }>
 }
 
-export function AppShell({ brand, sectionLabel, headerActions, footer, accountInfo, onLogout, children, navItems }: AppShellPropsExtended) {
+export function AppShell({ brand, headerActions, footer, accountInfo, onLogout, children, navItems }: AppShellPropsExtended) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+    const navigate = useNavigate()
     const menuOpen = Boolean(anchorEl)
 
     const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -60,6 +63,7 @@ export function AppShell({ brand, sectionLabel, headerActions, footer, accountIn
                     borderBottom: navItems ? 'none' : '1px solid',
                     borderColor: 'divider',
                     bgcolor: 'background.paper',
+                    padding: '8',
                 }}
             >
                 <Toolbar disableGutters sx={{ px: { xs: 2, md: 4 }, minHeight: 48 }}>
@@ -68,22 +72,24 @@ export function AppShell({ brand, sectionLabel, headerActions, footer, accountIn
                             <Box
                                 component="img"
                                 src={brand.logo}
+                                onClick={()=>navigate('/')}
                                 alt={brand.alt ?? 'brand-logo'}
-                                sx={{ height: 44, width: 'auto' }}
+                                sx={{ height: 64, width: 'auto' }}
                             />
-                        )}
-                        {sectionLabel && (
-                            <Typography variant="subtitle1" fontWeight={600}>
-                                {sectionLabel}
-                            </Typography>
                         )}
                     </Stack>
                     <Box sx={{ flexGrow: 1 }} />
                     {accountInfo && (
                         <>
+                            <Typography
+                                variant="subtitle2"
+                                sx={{marginRight : 1}}
+                            >
+                                {`${accountInfo.name}님 안녕하세요!`}
+                            </Typography>
                             <Avatar
                                 src={accountInfo.avatarUrl}
-                                sx={{ width: 40, height: 40, bgcolor: 'primary.main', cursor: 'pointer' }}
+                                sx={{ width: 30, height: 30, bgcolor: 'primary.main', cursor: 'pointer' }}
                                 onClick={handleAvatarClick}
                             >
                                 {accountInfo.name.charAt(0).toUpperCase()}
@@ -94,16 +100,31 @@ export function AppShell({ brand, sectionLabel, headerActions, footer, accountIn
                                 onClose={handleMenuClose}
                                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                                sx={{marginTop : 1}}
                             >
                                 <Stack spacing={0.5} sx={{ px: 2, py: 1.5 }}>
                                     <Typography variant="subtitle1">{accountInfo.name}</Typography>
-                                    {accountInfo.detail && (
+                                    {accountInfo.compName && (
+                                        <Typography variant="body2" color="text.secondary">
+                                            {accountInfo.compName}
+                                        </Typography>
+                                    )}{accountInfo.detail && (
                                         <Typography variant="body2" color="text.secondary">
                                             {accountInfo.detail}
                                         </Typography>
                                     )}
                                 </Stack>
-                                <Divider />
+                                <Divider sx={{marginBottom : 1}}/>
+                                <Box sx={{ px: 2, py: 1 }}>
+                                    <Button variant="contained" color="inherit" fullWidth onClick={()=>{}}>
+                                        회사변경
+                                    </Button>
+                                </Box>
+                                <Box sx={{ px: 2, py: 1 }}>
+                                    <Button variant="contained" color="inherit" fullWidth onClick={()=>{}}>
+                                        회원정보 수정
+                                    </Button>
+                                </Box>
                                 <Box sx={{ px: 2, py: 1 }}>
                                     <Button variant="contained" color="inherit" fullWidth onClick={handleLogoutClick}>
                                         로그아웃

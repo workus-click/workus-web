@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Alert, Box, Checkbox, FormControlLabel, Link, Paper, Stack, TextField } from '@mui/material'
-import { useNavigate } from 'react-router'
+import {useNavigate} from 'react-router'
 import { AppButton } from '../../../../shared/ui'
 import { mockSignIn } from '../lib/mockSignIn'
 import { REMEMBER_ID_STORAGE_KEY } from '../constants'
