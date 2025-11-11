@@ -1,10 +1,30 @@
 import { createBrowserRouter, RouterProvider } from 'react-router'
-import App from "./pages/main/App.tsx";
+import { HomePage } from '../pages/home'
+import { HirePage } from '../pages/hire'
+import { HrPage } from '../pages/hr'
+import { SalaryPage } from '../pages/salary'
+import { LoginPage } from '../pages/login'
 
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <App/>
+        element: <HomePage />,
+    },
+    {
+        path: '/login',
+        element: <LoginPage />,
+    },
+    {
+        path: '/hire',
+        element: <HirePage />,
+    },
+    {
+        path: '/hr',
+        element: <HrPage />,
+    },
+    {
+        path: '/salary',
+        element: <SalaryPage />,
     },
 ])
 
