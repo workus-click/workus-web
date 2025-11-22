@@ -1,10 +1,15 @@
+import ky from 'ky'
 import { useEffect, useMemo, useState } from 'react'
-import { Alert, Box, Checkbox, FormControlLabel, Link, Paper, Stack, TextField } from '@mui/material'
-import {useNavigate} from 'react-router'
+import { Alert, Box, Checkbox, FormControlLabel, Link, Paper, Stack, TextField, Typography } from '@mui/material'
+import { useNavigate } from 'react-router'
 import { AppButton } from '../../../../shared/ui'
 import { mockSignIn } from '../lib/mockSignIn'
 import { REMEMBER_ID_STORAGE_KEY } from '../constants'
 import workusLogo from '../../../../assets/workUs.png'
+
+type ServerTimeResponse = {
+    serverTime: string
+}
 
 type FormState = {
     company: string
@@ -25,12 +30,27 @@ export function LoginForm() {
     const [form, setForm] = useState<FormState>(initialState)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [serverTime, setServerTime] = useState<string | null>(null)
 
     useEffect(() => {
         const savedId = localStorage.getItem(REMEMBER_ID_STORAGE_KEY)
         if (savedId) {
             setForm((prev) => ({ ...prev, username: savedId }))
         }
+    }, [])
+
+    useEffect(() => {
+        const controller = new AbortController()
+
+        ky.get('/api/time', { signal: controller.signal })
+            .json<ServerTimeResponse>()
+            .then((data) => setServerTime(data.serverTime))
+            .catch((err) => {
+                if (controller.signal.aborted) return
+                console.error(err)
+            })
+
+        return () => controller.abort()
     }, [])
 
     const isSubmitDisabled = useMemo(() => {
@@ -77,6 +97,13 @@ export function LoginForm() {
                 <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                     <Box component="img" src={workusLogo} alt="WorkUs logo" sx={{ height: 56 }} />
                 </Box>
+                {serverTime && (
+                    <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="body2" color="text.secondary">
+                            서버 시간: {serverTime}
+                        </Typography>
+                    </Box>
+                )}
 
                 {error && <Alert severity="error">{error}</Alert>}
 
