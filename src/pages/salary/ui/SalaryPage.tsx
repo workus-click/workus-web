@@ -1,6 +1,6 @@
 import { Box, Button, Stack, TextField, Typography, Chip, Divider } from '@mui/material'
 import { styled } from '@mui/material/styles';
-import { CardList, type ListItem } from '../../../widgets/cardList';
+import { EmployeeCardList, type Employees } from '../../../widgets/salary/employeeCardList';
 import CalculatorIcon from '../assets/calculator.svg';
 import DeadlineIcon from '../assets/floppy-disk.svg';
 import CloseIcon from '../assets/close.svg';
@@ -10,23 +10,23 @@ const MyTextField = styled(TextField)({
     '& .MuiOutlinedInput-root': {
         borderRadius: 0,
         height: 30,
-        width: 150,
+        wstoreUserIdth: 150,
     },
 });
 
 
 export function SalaryPage() {
-    const employees: ListItem[] = [
-        { id: 1, title: '김훈이', subtitle: '알바 / 시급: 12,000' },
-        { id: 2, title: '김지원', subtitle: '직원 / 월급: 3,000,000' },
-        { id: 3, title: '김영희', subtitle: '알바 / 시급: 12,000' },
-        { id: 4, title: '이수진', subtitle: '직원 / 월급: 2,500,000' },
-        { id: 5, title: '박준혁', subtitle: '알바 / 시급: 15,000' },
-        { id: 6, title: '정현우', subtitle: '직원 / 월급: 2,800,000' },
-        { id: 7, title: '이은희', subtitle: '알바 / 시급: 13,000' },
-        { id: 8, title: '김태호', subtitle: '직원 / 월급: 3,200,000' },
-        { id: 9, title: '박소영', subtitle: '알바 / 시급: 12,000' },
-        { id: 10, title: '최준호', subtitle: '직원 / 월급: 2,700,000' }
+    const employees: Employees[] = [
+        { storeUserId: 1, empName: '김훈이', payInfo: '알바 / 시급: 12,000' },
+        { storeUserId: 2, empName: '김지원', payInfo: '직원 / 월급: 3,000,000' },
+        { storeUserId: 3, empName: '김영희', payInfo: '알바 / 시급: 12,000' },
+        { storeUserId: 4, empName: '이수진', payInfo: '직원 / 월급: 2,500,000' },
+        { storeUserId: 5, empName: '박준혁', payInfo: '알바 / 시급: 15,000' },
+        { storeUserId: 6, empName: '정현우', payInfo: '직원 / 월급: 2,800,000' },
+        { storeUserId: 7, empName: '이은희', payInfo: '알바 / 시급: 13,000' },
+        { storeUserId: 8, empName: '김태호', payInfo: '직원 / 월급: 3,200,000' },
+        { storeUserId: 9, empName: '박소영', payInfo: '알바 / 시급: 12,000' },
+        { storeUserId: 10, empName: '최준호', payInfo: '직원 / 월급: 2,700,000' }
     ];
 
     return (
@@ -91,7 +91,7 @@ export function SalaryPage() {
 
                     {/* 직원 리스트 */}
                     <Box sx={{ border: '1px solid', borderColor: 'divider', flex: 1, overflow: 'auto', minHeight: 0 }}>
-                        <CardList items={employees} />
+                        <EmployeeCardList items={employees} />
                     </Box>
                 </Box>
 

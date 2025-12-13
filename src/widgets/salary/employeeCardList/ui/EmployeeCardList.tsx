@@ -1,24 +1,24 @@
 import { Box, Stack, Typography, Checkbox } from '@mui/material'
 
-export interface ListItem {
-    id: string | number;
-    title: string;
-    subtitle: string;
+export interface Employees {
+    storeUserId: string | number;
+    empName: string;
+    payInfo: string;
 }
 
 interface CardListProps {
-    items: ListItem[]
+    items: Employees[]
 }
 
-export function CardList({
+export function EmployeeCardList({
     items,
 }: CardListProps) {
     return (
         <Box sx={{ p: 1.5, height: '100%' }}>
             <Stack spacing={1.5}>
-                {items.map((ListItem) => (
+                {items.map((Employees) => (
                     <Box
-                        key={ListItem.id}
+                        key={Employees.storeUserId}
                         sx={{
                             p: 1,
                             border: '1px solid',
@@ -33,9 +33,9 @@ export function CardList({
                     >
                         <Checkbox size='small' />
                         <Box sx={{ flex: 1 }}>
-                            <Typography variant='h6' sx={{ fontWeight: 500 }}>{ListItem.title}</Typography>
+                            <Typography variant='h6' sx={{ fontWeight: 500 }}>{Employees.empName}</Typography>
                             <Typography variant='caption' color='text.secondary'>
-                                {ListItem.subtitle}
+                                {Employees.payInfo}
                             </Typography>
                         </Box>
                     </Box>
