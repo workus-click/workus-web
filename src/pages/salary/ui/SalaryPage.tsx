@@ -10,7 +10,7 @@ const MyTextField = styled(TextField)({
     '& .MuiOutlinedInput-root': {
         borderRadius: 0,
         height: 30,
-        wstoreUserIdth: 150,
+        width: 150,
     },
 });
 
