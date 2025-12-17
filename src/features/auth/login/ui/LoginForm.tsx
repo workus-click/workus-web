@@ -6,6 +6,7 @@ import { mockSignIn } from '../lib/mockSignIn'
 import {AUTH_COMP_LIST, REMEMBER_ID_STORAGE_KEY} from '../constants'
 import workusLogo from '../../../../assets/workUs.png'
 import {companyStore} from "../../../../entities/company/model/companyStore.ts";
+import {useNavigate} from "react-router";
 
 type props = {
     nextStep : ()=>void,
@@ -28,6 +29,7 @@ const initialState: FormState = {
 }
 
 export function LoginForm( {nextStep} : props) {
+    const navigate = useNavigate();
     const [form, setForm] = useState<FormState>(initialState)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -142,7 +144,7 @@ export function LoginForm( {nextStep} : props) {
                     <AppButton type="submit" disabled={isSubmitDisabled}>
                         {loading ? '로그인 중...' : '로그인'}
                     </AppButton>
-                    <AppButton variant="outlined" color="inherit" type="button">
+                    <AppButton variant="outlined" color="inherit" type="button" onClick={()=>{navigate('/signup')}}>
                         회원가입
                     </AppButton>
                 </Stack>

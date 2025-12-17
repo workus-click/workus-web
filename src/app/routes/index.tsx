@@ -7,12 +7,18 @@ import { LoginPage } from '../../pages/login'
 import { DefaultLayout } from './layouts/DefaultLayout.tsx'
 import { requireAuth } from "./loaders/requireAuth.ts";
 import { redirectIfAuth } from "./loaders/redirectIfAuth.ts";
+import {SignupPage} from "../../pages/signup/SignupPage.tsx";
 
 const router = createBrowserRouter([
     {
         path: '/login',
         loader : redirectIfAuth,
         element: <LoginPage />,
+    },
+    {
+        path: '/signup',
+        loader : redirectIfAuth,
+        element: <SignupPage/>,
     },
     {
         element: <DefaultLayout />,
