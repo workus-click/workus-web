@@ -1,7 +1,11 @@
 import { Box, Stack, Typography } from '@mui/material'
 import { LoginForm } from '../../../features/auth/login'
+import {CompForm} from "../../../features/auth/login/ui/CompForm.tsx";
+import {useState} from "react";
 
 export function LoginPage() {
+    const [step, setStep] = useState<'login'|'company'>('login');
+
     return (
         <Box
             sx={{
@@ -14,7 +18,18 @@ export function LoginPage() {
                 bgcolor: 'background.default',
             }}
         >
-            <LoginForm />
+            {
+                step === 'login' &&
+                <LoginForm
+                    nextStep = {()=>{setStep('company')}}
+                />
+            }
+            {
+                step === 'company' &&
+                <CompForm
+                    prevStep = {()=>{setStep('login')}}
+                />
+            }
             <Stack spacing={0.5} alignItems="center" mt={4}>
                 <Typography variant="body2" color="text.secondary">
                     © {new Date().getFullYear()} WorkUs. All rights reserved.
