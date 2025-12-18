@@ -1,7 +1,6 @@
 import { AUTH_CREDENTIALS, TOKEN_STORAGE_KEY } from '../constants'
 
 export type LoginParams = {
-    company: string
     username: string
     password: string
 }
@@ -10,7 +9,6 @@ export async function mockSignIn(params: LoginParams) {
     return new Promise<{ token: string }>((resolve, reject) => {
         setTimeout(() => {
             const isValid =
-                params.company.trim().toLowerCase() === AUTH_CREDENTIALS.company &&
                 params.username.trim() === AUTH_CREDENTIALS.username &&
                 params.password === AUTH_CREDENTIALS.password
 

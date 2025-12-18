@@ -1,36 +1,40 @@
 import ky from 'ky'
 import { useEffect, useMemo, useState } from 'react'
 import { Alert, Box, Checkbox, FormControlLabel, Link, Paper, Stack, TextField, Typography } from '@mui/material'
-import { useNavigate } from 'react-router'
 import { AppButton } from '../../../../shared/ui'
 import { mockSignIn } from '../lib/mockSignIn'
-import { REMEMBER_ID_STORAGE_KEY } from '../constants'
+import {AUTH_COMP_LIST, REMEMBER_ID_STORAGE_KEY} from '../constants'
 import workusLogo from '../../../../assets/workUs.png'
+import {companyStore} from "../../../../entities/company/model/companyStore.ts";
+import {useNavigate} from "react-router";
+
+type props = {
+    nextStep : ()=>void,
+}
 
 type ServerTimeResponse = {
     serverTime: string
 }
 
 type FormState = {
-    company: string
     username: string
     password: string
     rememberId: boolean
 }
 
 const initialState: FormState = {
-    company: '',
     username: '',
     password: '',
     rememberId: true,
 }
 
-export function LoginForm() {
-    const navigate = useNavigate()
+export function LoginForm( {nextStep} : props) {
+    const navigate = useNavigate();
     const [form, setForm] = useState<FormState>(initialState)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [serverTime, setServerTime] = useState<string | null>(null)
+    const {setCompanyList} = companyStore(state => state.actions)
 
     useEffect(() => {
         const savedId = localStorage.getItem(REMEMBER_ID_STORAGE_KEY)
@@ -54,7 +58,7 @@ export function LoginForm() {
     }, [])
 
     const isSubmitDisabled = useMemo(() => {
-        return !form.company || !form.username || !form.password || loading
+        return !form.username || !form.password || loading
     }, [form, loading])
 
     const handleChange = (key: keyof FormState) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +72,6 @@ export function LoginForm() {
         setLoading(true)
         try {
             await mockSignIn({
-                company: form.company,
                 username: form.username,
                 password: form.password,
             })
@@ -77,7 +80,11 @@ export function LoginForm() {
             } else {
                 localStorage.removeItem(REMEMBER_ID_STORAGE_KEY)
             }
-            navigate('/')
+
+            //로그인 성공시 회사리스트 반환
+            setCompanyList(AUTH_COMP_LIST);
+            nextStep();
+
         } catch (err) {
             setError(err instanceof Error ? err.message : '로그인에 실패했습니다.')
         } finally {
@@ -108,7 +115,6 @@ export function LoginForm() {
                 {error && <Alert severity="error">{error}</Alert>}
 
                 <Stack spacing={2}>
-                    <TextField label="회사" placeholder="workus" value={form.company} onChange={handleChange('company')} />
                     <TextField
                         label="아이디"
                         placeholder="admin"
@@ -138,7 +144,7 @@ export function LoginForm() {
                     <AppButton type="submit" disabled={isSubmitDisabled}>
                         {loading ? '로그인 중...' : '로그인'}
                     </AppButton>
-                    <AppButton variant="outlined" color="inherit" type="button">
+                    <AppButton variant="outlined" color="inherit" type="button" onClick={()=>{navigate('/signup')}}>
                         회원가입
                     </AppButton>
                 </Stack>
