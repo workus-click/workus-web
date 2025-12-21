@@ -1,9 +1,11 @@
 import { Box, Button, Stack, TextField, Typography, Chip, Divider } from '@mui/material'
 import { styled } from '@mui/material/styles';
-import { EmployeeCardList, type Employees } from '../../../widgets/salary/employeeCardList';
+import { EmployeeCardList, type Employee } from '../../../widgets/salary/employeeCardList';
 import CalculatorIcon from '../assets/calculator.svg';
 import DeadlineIcon from '../assets/floppy-disk.svg';
 import CloseIcon from '../assets/close.svg';
+import { useState } from 'react';
+import { SalaryFormulaSettingDialog } from '../../../widgets/salary/salaryFormulaSettingDialog';
 
 
 const MyTextField = styled(TextField)({
@@ -16,7 +18,7 @@ const MyTextField = styled(TextField)({
 
 
 export function SalaryPage() {
-    const employees: Employees[] = [
+    const employees: Employee[] = [
         { storeUserId: 1, empName: '김훈이', payInfo: '알바 / 시급: 12,000' },
         { storeUserId: 2, empName: '김지원', payInfo: '직원 / 월급: 3,000,000' },
         { storeUserId: 3, empName: '김영희', payInfo: '알바 / 시급: 12,000' },
@@ -29,15 +31,30 @@ export function SalaryPage() {
         { storeUserId: 10, empName: '최준호', payInfo: '직원 / 월급: 2,700,000' }
     ];
 
-    return (
-        <Box sx={{ mx: { md: -13 } }}>
-            {/* 상단 */}
-            <Stack spacing={{ xs: 1, sm: 2 }} direction='row' useFlexGap sx={{ flexWrap: 'wrap', mb: 3 }} >
-                <Typography variant='h4'>급여입력</Typography>
-                <Typography variant='subtitle1' sx={{ alignSelf: 'flex-end', color: '#6D6D6D' }}>
-                    직원의 급여를 계산하고 급여명세서를 전송합니다.
-                </Typography>
+    const [salaryFormulaSettingDialogOpen, setSalaryFormulaSettingDialogOpen] = useState(false);
 
+    const handleSalaryFormulaSettingDialogOpen = () => {
+        setSalaryFormulaSettingDialogOpen(true);
+    };
+
+    return (
+        <Box>
+            {/* 상단 */}
+            <Stack spacing={{ xs: 1, sm: 2 }} direction='row' justifyContent='space-between' useFlexGap sx={{ flexWrap: 'wrap', mb: 3 }} >
+                <Stack spacing={3} direction='row'>
+                    <Typography variant='h4'>급여입력</Typography>
+                    <Typography variant='subtitle1' sx={{ alignSelf: 'flex-end', color: '#6D6D6D' }}>그
+                        직원의 급여를 계산하고 급여명세서를 전송합니다.
+                    </Typography>
+                </Stack>
+                <Stack direction='row' spacing={0.5} sx={{ flexWrap: 'nowrap' }}>
+                    <Button variant='contained' color='secondary' >
+                        급여명세서전송
+                    </Button>
+                    <Button variant='contained' color='secondary' onClick={handleSalaryFormulaSettingDialogOpen}>
+                        계산식설정
+                    </Button>
+                </Stack>
             </Stack>
             <Box sx={{
                 border: '2px solid',
@@ -350,6 +367,11 @@ export function SalaryPage() {
                     </Stack>
                 </Box>
             </Stack>
+
+            <SalaryFormulaSettingDialog
+                isOpen={salaryFormulaSettingDialogOpen}
+                onClose={() => setSalaryFormulaSettingDialogOpen(false)}
+            />
         </Box >
     )
 }

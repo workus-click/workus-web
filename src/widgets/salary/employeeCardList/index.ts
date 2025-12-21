@@ -1,2 +1,2 @@
 export { EmployeeCardList } from './ui/EmployeeCardList'
-export type { Employees } from './ui/EmployeeCardList'
+export type { Employee } from './ui/EmployeeCardList'
