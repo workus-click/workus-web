@@ -1,5 +1,8 @@
 import styled from '@emotion/styled';
-import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Stack, Typography, Alert, AlertTitle, Avatar, TextField, Table, TableHead, TableRow, TableBody, TableCell, Chip, Checkbox } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Stack, Typography, Alert, AlertTitle, Avatar, TextField, Table, TableHead, TableRow, TableBody, TableCell, Checkbox } from '@mui/material';
+import { useState } from 'react';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
 
 interface Employee {
     id: number;
@@ -28,6 +31,14 @@ const StyledTableCell = styled(TableCell)({
 });
 
 export function InviteDialog({ isOpen, onClose }: InviteDialogProps) {
+    const [selectedMethod, setSelectedMethod] = useState<'kakao' | 'direct' | null>(null);
+    const [isCopied, setIsCopied] = useState(false);
+
+    const handleCopy = () => {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+    };
+
     const employees: Employee[] = [
         {
             id: 1,
@@ -79,7 +90,7 @@ export function InviteDialog({ isOpen, onClose }: InviteDialogProps) {
             >
                 ✕
             </IconButton>
-            <DialogContent dividers sx={{ px: 3, py: 3 }}>
+            <DialogContent dividers sx={{ px: 5, py: 4 }}>
                 <Box sx={{ flex: 1, overflow: 'auto' }}>
                     <Alert
                         severity="info"
@@ -87,7 +98,7 @@ export function InviteDialog({ isOpen, onClose }: InviteDialogProps) {
                             bgcolor: '#dfecfb',
                             color: '#333',
                             p: 2,
-                            mb: 2,
+                            mb: 4,
                             borderRadius: 0.3,
                             '& .MuiAlert-icon': {
                                 color: '#6366F1',
@@ -102,7 +113,7 @@ export function InviteDialog({ isOpen, onClose }: InviteDialogProps) {
                         초대를 승인하면 근무스케줄 및 급여명세서를 조회할 수 있습니다.
                     </Alert>
 
-                    <Stack direction='row' spacing={1} alignItems='center' sx={{ mt: 1, mb: 1 }}>
+                    <Stack direction='row' spacing={1} alignItems='center' sx={{ mb: 2 }}>
                         <Avatar sx={{ height: 30, width: 30 }} />
                         <Typography sx={{ fontSize: 15, fontWeight: 500 }}>초대 미발송 직원 목록</Typography>
                     </Stack>
@@ -152,20 +163,82 @@ export function InviteDialog({ isOpen, onClose }: InviteDialogProps) {
 
                     <Box sx={{ my: 2 }}>
                         <Typography sx={{ fontSize: 15, fontWeight: 500 }}>초대 방법을 선택해주세요</Typography>
-                        <Box sx={{ px: 1, py: 1.5, my: 1, border: '1px solid', borderColor: 'divider', borderRadius: 0.5, alignItems: 'center', display: 'flex', }}>
-                            <Checkbox size="small" />
-                            <Stack >
+                        <Box
+                            onClick={() => setSelectedMethod('kakao')}
+                            sx={{
+                                px: 1,
+                                py: 1.5,
+                                my: 1,
+                                border: '2px solid',
+                                borderColor: 'divider',
+                                bgcolor: selectedMethod === 'kakao' ? '#dfecfb' : 'transparent',
+                                borderRadius: 0.5,
+                                alignItems: 'center',
+                                display: 'flex',
+                                cursor: 'pointer',
+                                '&:hover': { bgcolor: 'action.hover' },
+                            }}
+                        >
+                            <Stack sx={{ ml: 1 }}>
                                 <Typography sx={{ fontSize: 13, fontWeight: 500 }}> 카카오톡으로 초대 링크 </Typography>
                                 <Typography sx={{ fontSize: 12, color: '#ADADAD' }}> 초대 링크를 카카오톡 전송 </Typography>
                             </Stack>
                         </Box>
-                        <Box sx={{ px: 1, py: 1.5, my: 1, border: '1px solid', borderColor: 'divider', borderRadius: 0.5, alignItems: 'center', display: 'flex', }}>
-                            <Checkbox size="small" />
-                            <Stack >
+                        <Box
+                            onClick={() => setSelectedMethod('direct')}
+                            sx={{
+                                px: 1,
+                                py: 1.5,
+                                my: 1,
+                                border: '2px solid',
+                                borderColor: 'divider',
+                                bgcolor: selectedMethod === 'direct' ? '#dfecfb' : 'transparent',
+                                borderRadius: 0.5,
+                                alignItems: 'center',
+                                display: 'flex',
+                                cursor: 'pointer',
+                                '&:hover': { bgcolor: 'action.hover' },
+                            }}
+                        >
+                            <Stack sx={{ ml: 1 }}>
                                 <Typography sx={{ fontSize: 13, fontWeight: 500 }}> 초대링크 직접 전달 </Typography>
-                                <Typography sx={{ fontSize: 12, color: '#ADADAD' }}> 초대 링크를 카카오톡 전송 </Typography>
                             </Stack>
                         </Box>
+                        {selectedMethod === 'direct' && (
+                            <Stack direction='row' sx={{ gap: 2, alignItems: 'flex-end' }} >
+                                <TextField
+                                    variant="outlined"
+                                    sx={{
+                                        flex: 1,
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 0,
+                                            height: 30
+                                        },
+                                        '& input': {
+                                            fontSize: 13,
+                                        }
+                                    }}
+                                />
+                                <Button
+                                    variant={isCopied ? 'contained' : 'outlined'}
+                                    color={isCopied ? 'primary' : 'secondary'}
+                                    onClick={handleCopy}
+                                    size='small'
+                                    startIcon={isCopied ? <CheckIcon /> : <ContentCopyIcon />}
+                                    sx={{
+                                        borderRadius: 0.5,
+                                        height: 30,
+                                        width: 80,
+                                        bgcolor: isCopied ? '#6366F1' : 'transparent',
+                                        '&:hover': {
+                                            bgcolor: isCopied ? '#5558E3' : 'action.hover'
+                                        }
+                                    }}
+                                >
+                                    {isCopied ? '복사됨' : '복사'}
+                                </Button>
+                            </Stack>
+                        )}
                     </Box>
 
                     <Stack direction='row' spacing={0.5} justifyContent={'center'} sx={{ pt: 2 }}>
