@@ -1,6 +1,7 @@
 import { Box, Button, Divider, Stack, styled, TextField, Typography, Table, TableHead, TableBody, TableRow, TableCell, Avatar, Chip } from '@mui/material'
 import { RegisterDialog } from '../../../widgets/hire/registerDialog';
 import { InviteDialog } from '../../../widgets/hire/inviteDialog';
+import { WorkingHoursTable } from '../../../widgets/hire/workingHoursTable';
 import { useState } from 'react';
 
 const MyTextField = styled(TextField)<{ customHeight?: number, useBorderRadius?: boolean }>(({ customHeight, useBorderRadius }) => ({
@@ -89,7 +90,7 @@ export function HirePage() {
             </Stack>
 
             {/* 하단 */}
-            <Stack direction='row' spacing={2} sx={{ flex: 1 }}>
+            <Stack direction='row' spacing={2} sx={{ flex: 1, minHeight: 0 }}>
                 {/* 좌측 영역 */}
                 <Box sx={{ flex: 1.5, display: 'flex', flexDirection: 'column' }}>
                     <Stack direction='row' sx={{ gap: 2, alignItems: 'flex-end' }} >
@@ -171,63 +172,63 @@ export function HirePage() {
                         <Box sx={{ bgcolor: 'black', p: 2 }} />
                         <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
                             <Stack spacing={1} sx={{ mb: 2 }}>
-                                <Typography fontSize={17} fontWeight={600}>📋 인적사항</Typography>
+                                <Typography fontSize={15} fontWeight={600}>📋 인적사항</Typography>
                                 <Stack direction='row' spacing={2}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, gap: 1 }}>
-                                        <Typography fontSize={15} sx={{ minWidth: 80, textAlign: 'right' }}>이름 <Box component="span" sx={{ color: 'red' }}>*</Box></Typography>
+                                        <Typography fontSize={14} sx={{ minWidth: 80, textAlign: 'right' }}>이름 <Box component="span" sx={{ color: 'red' }}>*</Box></Typography>
                                         <MyTextField useBorderRadius customHeight={25} sx={{ flex: 1 }} />
                                     </Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, gap: 1 }}>
-                                        <Typography fontSize={15} sx={{ minWidth: 100, textAlign: 'right' }}>주민등록번호 <Box component="span" sx={{ color: 'red' }}>*</Box></Typography>
+                                        <Typography fontSize={14} sx={{ minWidth: 100, textAlign: 'right' }}>주민등록번호 <Box component="span" sx={{ color: 'red' }}>*</Box></Typography>
                                         <MyTextField useBorderRadius customHeight={25} sx={{ flex: 1 }} />
                                     </Box>
                                 </Stack>
                                 <Stack direction='row' spacing={2}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, gap: 1 }}>
-                                        <Typography fontSize={15} sx={{ minWidth: 80, textAlign: 'right' }}>연락처</Typography>
+                                        <Typography fontSize={14} sx={{ minWidth: 80, textAlign: 'right' }}>연락처</Typography>
                                         <MyTextField useBorderRadius customHeight={25} sx={{ flex: 1 }} />
                                     </Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, gap: 1 }}>
-                                        <Typography fontSize={15} sx={{ minWidth: 100, textAlign: 'right' }}>고용형태 <Box component="span" sx={{ color: 'red' }}>*</Box></Typography>
+                                        <Typography fontSize={14} sx={{ minWidth: 100, textAlign: 'right' }}>고용형태 <Box component="span" sx={{ color: 'red' }}>*</Box></Typography>
                                         <MyTextField useBorderRadius customHeight={25} sx={{ flex: 1 }} />
                                     </Box>
                                 </Stack>
                             </Stack>
                             <Stack spacing={1} sx={{ mb: 2 }}>
-                                <Typography fontSize={17} fontWeight={600}>⏰ 근무정보</Typography>
+                                <Typography fontSize={15} fontWeight={600}>⏰ 근무정보</Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography fontSize={15} sx={{ minWidth: 80, textAlign: 'right' }}>근무기간</Typography>
+                                    <Typography fontSize={14} sx={{ minWidth: 80, textAlign: 'right' }}>근무기간</Typography>
                                     <MyTextField useBorderRadius customHeight={25} sx={{ flex: 1 }} />
                                     <Typography>~</Typography>
                                     <MyTextField useBorderRadius customHeight={25} sx={{ flex: 1 }} />
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography fontSize={15} sx={{ minWidth: 80, textAlign: 'right' }}>근무시간</Typography>
-                                    <Box sx={{ height: 40, border: '1px solid', borderColor: 'divider', borderRadius: 0.5, flex: 1 }} />
+                                    <Typography fontSize={14} sx={{ minWidth: 80, textAlign: 'right' }}>근무시간</Typography>
+                                    <WorkingHoursTable variant="dialog" />
                                 </Box>
                             </Stack>
                             <Stack spacing={1} sx={{ mb: 2 }}>
-                                <Typography fontSize={17} fontWeight={600}>💰 급여정보</Typography>
+                                <Typography fontSize={15} fontWeight={600}>💰 급여정보</Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography fontSize={15} sx={{ minWidth: 80, textAlign: 'right' }}>급여형태 <Box component="span" sx={{ color: 'red' }}>*</Box></Typography>
+                                    <Typography fontSize={14} sx={{ minWidth: 80, textAlign: 'right' }}>급여형태 <Box component="span" sx={{ color: 'red' }}>*</Box></Typography>
                                     <MyTextField useBorderRadius customHeight={25} sx={{ flex: 1 }} />
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography fontSize={15} sx={{ minWidth: 80, textAlign: 'right' }}>시간단가 <Box component="span" sx={{ color: 'red' }}>*</Box></Typography>
+                                    <Typography fontSize={14} sx={{ minWidth: 80, textAlign: 'right' }}>시간단가 <Box component="span" sx={{ color: 'red' }}>*</Box></Typography>
                                     <MyTextField useBorderRadius customHeight={25} sx={{ flex: 1 }} />
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography fontSize={15} sx={{ minWidth: 80, textAlign: 'right' }}>월급여</Typography>
+                                    <Typography fontSize={14} sx={{ minWidth: 80, textAlign: 'right' }}>월급여</Typography>
                                     <MyTextField useBorderRadius customHeight={25} sx={{ flex: 1 }} />
                                     <MyTextField useBorderRadius customHeight={25} sx={{ flex: 1 }} />
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography fontSize={15} sx={{ minWidth: 80, textAlign: 'right' }}>사회보험</Typography>
+                                    <Typography fontSize={14} sx={{ minWidth: 80, textAlign: 'right' }}>사회보험</Typography>
                                     <MyTextField useBorderRadius customHeight={25} sx={{ flex: 1 }} />
                                 </Box>
                             </Stack>
                             <Stack spacing={1}>
-                                <Typography fontSize={17} fontWeight={600}>📄 근로계약서</Typography>
+                                <Typography fontSize={15} fontWeight={600}>📄 근로계약서</Typography>
                                 <Box sx={{ height: 50, border: '1px solid', borderColor: 'divider', borderRadius: 0.5 }} />
                             </Stack>
                         </Box>

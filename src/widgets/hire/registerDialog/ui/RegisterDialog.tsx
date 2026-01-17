@@ -2,6 +2,7 @@ import { Alert, AlertTitle, Box, Button, Dialog, DialogContent, DialogTitle, Div
 import { useEffect, useState } from 'react';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
+import { WorkingHoursTable } from '../../workingHoursTable';
 
 export interface RegisterDialogProps {
     isOpen: boolean;
@@ -113,7 +114,7 @@ export function RegisterDialog({ isOpen, onClose }: RegisterDialogProps) {
                             </Box>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Typography fontSize={15} sx={{ minWidth: 80, textAlign: 'right' }}>근무시간</Typography>
-                                <Box sx={{ height: 40, border: '1px solid', borderColor: 'divider', borderRadius: 0.5, flex: 1 }} />
+                                <WorkingHoursTable variant='popover' />
                             </Box>
                         </Stack>
                         <Stack spacing={1} sx={{ mb: 2 }}>
