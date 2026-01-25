@@ -10,8 +10,8 @@ interface WorkingHoursTableProps {
 
 const WEEKDAYS = ['월', '화', '수', '목', '금', '토', '일'] as const;
 
-export function WorkingHoursTable({ variant = 'popover', onChange }: WorkingHoursTableProps) {
-    const [selectedHours, setSelectedHours] = useState<Record<string, string>>({
+export function WorkingHoursTable({ variant = 'popover' }: WorkingHoursTableProps) {
+    const [selectedHours] = useState<Record<string, string>>({
         월: '오전1',
         화: '오전1',
         수: '오전1',
