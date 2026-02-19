@@ -3,14 +3,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Alert, Box, Checkbox, FormControlLabel, Link, Paper, Stack, TextField, Typography } from '@mui/material'
 import { AppButton } from '../../../../shared/ui'
 import { mockSignIn } from '../lib/mockSignIn'
-import {AUTH_COMP_LIST, REMEMBER_ID_STORAGE_KEY} from '../constants'
+import {REMEMBER_ID_STORAGE_KEY} from '../constants'
 import workusLogo from '../../../../assets/workUs.png'
-import {companyStore} from "../../../../entities/company/model/companyStore.ts";
 import {useNavigate} from "react-router";
 
-type props = {
-    nextStep : ()=>void,
-}
 
 type ServerTimeResponse = {
     serverTime: string
@@ -28,13 +24,12 @@ const initialState: FormState = {
     rememberId: true,
 }
 
-export function LoginForm( {nextStep} : props) {
+export function LoginForm() {
     const navigate = useNavigate();
     const [form, setForm] = useState<FormState>(initialState)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [serverTime, setServerTime] = useState<string | null>(null)
-    const {setCompanyList} = companyStore(state => state.actions)
 
     useEffect(() => {
         const savedId = localStorage.getItem(REMEMBER_ID_STORAGE_KEY)
@@ -74,17 +69,17 @@ export function LoginForm( {nextStep} : props) {
             await mockSignIn({
                 username: form.username,
                 password: form.password,
-            })
-            if (form.rememberId) {
-                localStorage.setItem(REMEMBER_ID_STORAGE_KEY, form.username)
-            } else {
-                localStorage.removeItem(REMEMBER_ID_STORAGE_KEY)
-            }
+            }).then(({token})=>{
+                if(token){
+                    if (form.rememberId) {
+                        localStorage.setItem(REMEMBER_ID_STORAGE_KEY, form.username)
+                    } else {
+                        localStorage.removeItem(REMEMBER_ID_STORAGE_KEY)
+                    }
 
-            //로그인 성공시 회사리스트 반환
-            setCompanyList(AUTH_COMP_LIST);
-            nextStep();
-
+                    navigate('/')
+                }
+            });
         } catch (err) {
             setError(err instanceof Error ? err.message : '로그인에 실패했습니다.')
         } finally {
