@@ -19,7 +19,8 @@ type AppShellProps = PropsWithChildren<{
         compName?: string
     }
     footer?: ReactNode
-    onLogout?: () => void
+    onAddStore?: () => void
+    onLogout?: () => Promise<void> | void
 }>
 
 type AppShellPropsExtended = AppShellProps & {
@@ -30,7 +31,16 @@ type AppShellPropsExtended = AppShellProps & {
     }>
 }
 
-export function AppShell({ brand, headerActions, footer, accountInfo, onLogout, children, navItems }: AppShellPropsExtended) {
+export function AppShell({
+    brand,
+    headerActions,
+    footer,
+    accountInfo,
+    onAddStore,
+    onLogout,
+    children,
+    navItems,
+}: AppShellPropsExtended) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
     const navigate = useNavigate()
     const menuOpen = Boolean(anchorEl)
@@ -54,9 +64,14 @@ export function AppShell({ brand, headerActions, footer, accountInfo, onLogout, 
         setAnchorEl(null)
     }
 
+    const handleAddStore = () => {
+        handleMenuClose()
+        onAddStore?.()
+    }
+
     const handleLogoutClick = () => {
         handleMenuClose()
-        onLogout?.()
+        void onLogout?.()
     }
 
     const defaultFooter = (
@@ -203,6 +218,8 @@ export function AppShell({ brand, headerActions, footer, accountInfo, onLogout, 
                                 <Divider sx={{mb : 1, mx: 2, borderBottomWidth: 2.5}}/>
                                 <Stack direction="row" spacing={1} sx={{ px: 2, py: 1}}>
                                     <IconButton
+                                        onClick={handleAddStore}
+                                        aria-label="새 매장 추가"
                                         sx={{
                                             bgcolor: 'grey.200',
                                             width: 30,
@@ -213,9 +230,11 @@ export function AppShell({ brand, headerActions, footer, accountInfo, onLogout, 
                                     </IconButton>
                                     <Typography
                                         variant='subtitle2'
+                                        onClick={handleAddStore}
                                         sx={{
                                             display: 'flex',
-                                            alignItems: 'center'
+                                            alignItems: 'center',
+                                            cursor: 'pointer',
                                         }}
                                     >
                                         새 매장 추가

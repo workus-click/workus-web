@@ -10,10 +10,13 @@ import {
     Typography,
     Alert
 } from '@mui/material'
+import {HTTPError} from 'ky';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import {useState} from "react";
 import * as React from "react";
+import {useNavigate} from "react-router";
+import {apiClient} from "../../../../shared/api";
 
 type SignupFormState = {
     userName: string
@@ -25,6 +28,13 @@ type SignupFormState = {
     emailDomain: string
     agreeService: boolean
     agreePrivacy: boolean
+}
+
+type APIResponse<S, E> = {
+    code: string;
+    message: string;
+    data: S | null;
+    error: E | null;
 }
 
 const initialState: SignupFormState = {
@@ -40,12 +50,14 @@ const initialState: SignupFormState = {
 }
 
 export function SignupForm() {
+    const navigate = useNavigate();
 
     const [signupForm, setSignupForm] = useState<SignupFormState>(initialState);
     const [checkUserId, setCheckUserId] = useState<string>('');
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [submitError, setSubmitError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
 
     const check = (condition: boolean, key: string, message: string) => {
@@ -77,22 +89,38 @@ export function SignupForm() {
         return validationResult
     };
 
-    const handleCheckUserId = () => {
+    const resolveErrorMessage = async (err: unknown, defaultMessage: string) => {
+        if (err instanceof HTTPError) {
+            const responseBody = await err.response.json<APIResponse<unknown, unknown>>().catch(() => null);
+            if (responseBody?.message) {
+                return responseBody.message;
+            }
+        }
+
+        return defaultMessage;
+    };
+
+    const handleCheckUserId = async () => {
         if(!check(!!signupForm.userId, 'userId', '아이디를 입력해주세요')) return;
 
         setLoading(true)
         try{
-            const mockUserId : string[] = ['admin','user'];
-            const isAvailable = !mockUserId.includes(signupForm.userId);
+            await apiClient.get('/api/auth/check-id', {
+                searchParams: {
+                    loginId: signupForm.userId,
+                },
+            }).json<APIResponse<boolean, boolean>>();
 
-            //TODO 아이디 중복 체크 API 호출
-
-            if(!isAvailable){
-                setErrors({ userId: '이미 사용중인 아이디입니다' });
-                setCheckUserId('');
-            }else{
-                setCheckUserId(signupForm.userId);
-            }
+            setCheckUserId(signupForm.userId);
+            setErrors(prev => {
+                const next = {...prev};
+                delete next.userId;
+                return next;
+            });
+            setSubmitError('');
+        } catch (err) {
+            setCheckUserId('');
+            setErrors({ userId: await resolveErrorMessage(err, '이미 사용중인 아이디입니다') });
         }finally {
             setLoading(false)
 
@@ -100,21 +128,35 @@ export function SignupForm() {
 
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!validate()) return;
 
         setLoading(true)
+        setSubmitError('')
 
         try{
-            //TODO 회원가입 API 호출
+            await apiClient.post('/api/auth/signup', {
+                json: {
+                    name: signupForm.userName,
+                    loginId: signupForm.userId,
+                    password: signupForm.password,
+                    phone: signupForm.phone,
+                    emailId: signupForm.emailId,
+                    emailDomain: signupForm.emailDomain,
+                    agreeTerms: signupForm.agreeService,
+                    agreePrivacy: signupForm.agreePrivacy,
+                },
+            }).json<APIResponse<boolean, boolean>>();
+
+            navigate('/login');
+        } catch (err) {
+            setSubmitError(await resolveErrorMessage(err, '회원가입에 실패했습니다'));
         }finally {
 
             setLoading(false)
         }
-
-        console.log('submit', { ...signupForm});
     };
 
     return (
@@ -314,12 +356,19 @@ export function SignupForm() {
                             {errors.agreeService ?? errors.agreePrivacy}
                         </Alert>
                     }
+                    {
+                        !!submitError &&
+                        <Alert severity="error">
+                            {submitError}
+                        </Alert>
+                    }
 
                     <Button
                         variant="contained"
                         size="large"
                         sx={{ mt: 2, borderRadius: 999 }}
                         onClick={handleSubmit}
+                        disabled={loading}
                     >
                         완료
                     </Button>

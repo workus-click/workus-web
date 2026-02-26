@@ -1,64 +1,32 @@
-import ky from 'ky'
-import { useEffect, useMemo, useState } from 'react'
-import { Alert, Box, Checkbox, FormControlLabel, Link, Paper, Stack, TextField, Typography } from '@mui/material'
-import { AppButton } from '../../../../shared/ui'
-import { mockSignIn } from '../lib/mockSignIn'
-import {REMEMBER_ID_STORAGE_KEY} from '../constants'
-import workusLogo from '../../../../assets/workUs.png'
-import {useNavigate} from "react-router";
-
-
-type ServerTimeResponse = {
-    serverTime: string
-}
+import { useMemo, useState } from 'react'
+import { Alert, Link, Stack, TextField } from '@mui/material'
+import { HTTPError } from 'ky'
+import { AppButton, AuthForm } from '../../../../shared/ui'
+import { apiClient } from '../../../../shared/api'
+import { useNavigate } from 'react-router'
 
 type FormState = {
     username: string
     password: string
-    rememberId: boolean
 }
 
 const initialState: FormState = {
     username: '',
     password: '',
-    rememberId: true,
 }
 
 export function LoginForm() {
-    const navigate = useNavigate();
+    const navigate = useNavigate()
     const [form, setForm] = useState<FormState>(initialState)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [serverTime, setServerTime] = useState<string | null>(null)
-
-    useEffect(() => {
-        const savedId = localStorage.getItem(REMEMBER_ID_STORAGE_KEY)
-        if (savedId) {
-            setForm((prev) => ({ ...prev, username: savedId }))
-        }
-    }, [])
-
-    useEffect(() => {
-        const controller = new AbortController()
-
-        ky.get('/api/time', { signal: controller.signal })
-            .json<ServerTimeResponse>()
-            .then((data) => setServerTime(data.serverTime))
-            .catch((err) => {
-                if (controller.signal.aborted) return
-                console.error(err)
-            })
-
-        return () => controller.abort()
-    }, [])
 
     const isSubmitDisabled = useMemo(() => {
         return !form.username || !form.password || loading
     }, [form, loading])
 
     const handleChange = (key: keyof FormState) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = key === 'rememberId' ? event.target.checked : event.target.value
-        setForm((prev) => ({ ...prev, [key]: value }))
+        setForm((prev) => ({ ...prev, [key]: event.target.value }))
     }
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -66,47 +34,32 @@ export function LoginForm() {
         setError(null)
         setLoading(true)
         try {
-            await mockSignIn({
-                username: form.username,
-                password: form.password,
-            }).then(({token})=>{
-                if(token){
-                    if (form.rememberId) {
-                        localStorage.setItem(REMEMBER_ID_STORAGE_KEY, form.username)
-                    } else {
-                        localStorage.removeItem(REMEMBER_ID_STORAGE_KEY)
-                    }
+            await apiClient.post('/api/auth/login', {
+                json: {
+                    loginId: form.username,
+                    password: form.password,
+                },
+            })
 
-                    navigate('/')
-                }
-            });
+            navigate('/')
         } catch (err) {
-            setError(err instanceof Error ? err.message : '로그인에 실패했습니다.')
+            if (err instanceof HTTPError) {
+                setError(err.response.status === 401 ? '아이디 또는 비밀번호가 올바르지 않습니다.' : '로그인에 실패했습니다.')
+            } else {
+                setError('로그인에 실패했습니다.')
+            }
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <Paper
-            elevation={0}
-            variant="outlined"
-            sx={{ width: '100%', maxWidth: 420, p: { xs: 3, md: 4 } }}
-            component="form"
-            onSubmit={handleSubmit}
+        <AuthForm
+            title='안녕하세요!'
+            description='WorkUs와 함께 시작해봐요'
+            formProps={{ onSubmit: handleSubmit }}
         >
             <Stack spacing={3}>
-                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                    <Box component="img" src={workusLogo} alt="WorkUs logo" sx={{ height: 56 }} />
-                </Box>
-                {serverTime && (
-                    <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="body2" color="text.secondary">
-                            서버 시간: {serverTime}
-                        </Typography>
-                    </Box>
-                )}
-
                 {error && <Alert severity="error">{error}</Alert>}
 
                 <Stack spacing={2}>
@@ -125,11 +78,7 @@ export function LoginForm() {
                     />
                 </Stack>
 
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <FormControlLabel
-                        control={<Checkbox checked={form.rememberId} onChange={handleChange('rememberId')} />}
-                        label="아이디 저장"
-                    />
+                <Stack direction="row" justifyContent="flex-end" alignItems="center">
                     <Link component="button" type="button" underline="hover" sx={{ fontSize: 14 }}>
                         계정정보 찾기
                     </Link>
@@ -139,11 +88,11 @@ export function LoginForm() {
                     <AppButton type="submit" disabled={isSubmitDisabled}>
                         {loading ? '로그인 중...' : '로그인'}
                     </AppButton>
-                    <AppButton variant="outlined" color="inherit" type="button" onClick={()=>{navigate('/signup')}}>
+                    <AppButton variant="outlined" color="inherit" type="button" onClick={() => { navigate('/signup') }}>
                         회원가입
                     </AppButton>
                 </Stack>
             </Stack>
-        </Paper>
+        </AuthForm>
     )
 }
