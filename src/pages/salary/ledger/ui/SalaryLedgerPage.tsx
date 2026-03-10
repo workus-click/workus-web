@@ -1,8 +1,27 @@
 import { Box, Button, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material'
 import { EmployeeCardList, type Employee } from '../../../../widgets/salary/employeeCardList';
 import styled from '@emotion/styled';
+import { useState } from 'react';
+import { SalaryLedgerDocumentDialog } from '../../../../widgets/salary/salaryLedgerDocumentDialog';
 
 export function SalaryLedgerPage() {
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogType, setDialogType] = useState<'print' | 'pdf'>('print');
+
+    const handleOpenPrint = () => {
+        setDialogType('print');
+        setDialogOpen(true);
+    };
+
+    const handleOpenPdf = () => {
+        setDialogType('pdf');
+        setDialogOpen(true);
+    };
+
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
+    };
+
     const employees: Employee[] = [
         { storeUserId: 1, empName: '김훈이', payInfo: '알바 / 시급: 12,000' },
         { storeUserId: 2, empName: '김지원', payInfo: '직원 / 월급: 3,000,000' },
@@ -55,10 +74,10 @@ export function SalaryLedgerPage() {
                     </Typography>
                 </Stack>
                 <Stack direction='row' spacing={0.5} sx={{ flexWrap: 'nowrap' }}>
-                    <Button variant='contained' color='secondary' >
+                    <Button variant='contained' color='secondary' onClick={handleOpenPrint}>
                         출력하기
                     </Button>
-                    <Button variant='contained' color='secondary' >
+                    <Button variant='contained' color='secondary' onClick={handleOpenPdf}>
                         PDF다운로드
                     </Button>
                 </Stack>
@@ -265,6 +284,11 @@ export function SalaryLedgerPage() {
                     </Stack>
                 </Box>
             </Stack>
+            <SalaryLedgerDocumentDialog
+                open={dialogOpen}
+                onClose={handleCloseDialog}
+                type={dialogType}
+            />
         </Box >
     )
 }
