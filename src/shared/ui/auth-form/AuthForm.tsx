@@ -1,5 +1,5 @@
-import type { ComponentProps } from 'react'
 import type { ReactNode } from 'react'
+import type { FormHTMLAttributes } from 'react'
 import { Box, Paper, Stack, Typography } from '@mui/material'
 import workusLogo from '../../../assets/workUs.png'
 
@@ -8,12 +8,12 @@ type AuthFormProps = {
     description: string
     children: ReactNode
     footer?: ReactNode
-    formProps?: ComponentProps<'form'>
+    formProps?: Omit<FormHTMLAttributes<HTMLFormElement>, 'ref'>
 }
 
 export function AuthForm({ title, description, children, footer, formProps }: AuthFormProps) {
     const content = formProps ? (
-        <Box component='form' {...formProps}>
+        <Box component='form' noValidate {...formProps}>
             {children}
         </Box>
     ) : (
