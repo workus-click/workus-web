@@ -3,7 +3,8 @@ import { Alert, Link, Stack, TextField } from '@mui/material'
 import { HTTPError } from 'ky'
 import { AppButton, AuthForm } from '../../../../shared/ui'
 import { apiClient } from '../../../../shared/api'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
+import { issueAuthToken } from '../../../../shared/api/meSession'
 
 type FormState = {
     username: string
@@ -17,6 +18,8 @@ const initialState: FormState = {
 
 export function LoginForm() {
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const inviteToken = searchParams.get('invite')
     const [form, setForm] = useState<FormState>(initialState)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -40,6 +43,12 @@ export function LoginForm() {
                     password: form.password,
                 },
             })
+            issueAuthToken()
+
+            if (inviteToken) {
+                navigate(`/invite/accept/${encodeURIComponent(inviteToken)}`)
+                return
+            }
 
             navigate('/')
         } catch (err) {
@@ -64,15 +73,15 @@ export function LoginForm() {
 
                 <Stack spacing={2}>
                     <TextField
+                        fullWidth
                         label="아이디"
-                        placeholder="admin"
                         value={form.username}
                         onChange={handleChange('username')}
                     />
                     <TextField
+                        fullWidth
                         label="비밀번호"
                         type="password"
-                        placeholder="••••"
                         value={form.password}
                         onChange={handleChange('password')}
                     />
@@ -84,11 +93,23 @@ export function LoginForm() {
                     </Link>
                 </Stack>
 
+                {inviteToken && (
+                    <Alert severity='info'>
+                        초대 승인 진행을 위해 로그인 후 초대 승인 페이지로 이동합니다.
+                    </Alert>
+                )}
+
                 <Stack spacing={1.5}>
-                    <AppButton type="submit" disabled={isSubmitDisabled}>
+                    <AppButton fullWidth type="submit" disabled={isSubmitDisabled}>
                         {loading ? '로그인 중...' : '로그인'}
                     </AppButton>
-                    <AppButton variant="outlined" color="inherit" type="button" onClick={() => { navigate('/signup') }}>
+                    <AppButton
+                        fullWidth
+                        variant="outlined"
+                        color="inherit"
+                        type="button"
+                        onClick={() => { navigate(inviteToken ? `/signup?invite=${encodeURIComponent(inviteToken)}` : '/signup') }}
+                    >
                         회원가입
                     </AppButton>
                 </Stack>

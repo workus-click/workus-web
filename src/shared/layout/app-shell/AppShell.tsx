@@ -17,6 +17,12 @@ type AppShellProps = PropsWithChildren<{
         detail?: string
         avatarUrl?: string
         compName?: string
+        currentStoreId: number
+        companies: Array<{
+            storeId: number
+            storeName: string
+            storeAddress: string
+        }>
     }
     footer?: ReactNode
     onAddStore?: () => void
@@ -44,17 +50,6 @@ export function AppShell({
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
     const navigate = useNavigate()
     const menuOpen = Boolean(anchorEl)
-    const companyList = [ {
-        company: 'workus',
-        compName : 'workus',
-        compAddr : '서울특별시 중구 동호로 10길 30'
-    },
-        {
-            company: 'globalKorea',
-            compName : '글로벌코리아',
-            compAddr : '서울특별시 중랑구 상봉로 134'
-        }]
-
 
     const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget)
@@ -117,7 +112,7 @@ export function AppShell({
                                     fontWeight : 1000
                                 }}
                             >
-                                {`사장님 안녕하세요!`}
+                                {`${accountInfo.name}님 안녕하세요!`}
                             </Typography>
 
                             <Avatar
@@ -159,9 +154,9 @@ export function AppShell({
                                         매장계정전환
                                     </Typography>
 
-                                    {companyList?.map((companyInfo) => (
+                                    {accountInfo.companies.map((companyInfo) => (
                                         <Paper
-                                            key={companyInfo.company}
+                                            key={companyInfo.storeId}
                                             elevation={0}
                                         >
                                             <Stack direction="row" spacing={1} alignItems="center">
@@ -177,14 +172,13 @@ export function AppShell({
                                                         cursor: 'pointer',
                                                         fontSize: 14
                                                     }}
-                                                    onClick={handleAvatarClick}
                                                 >
-                                                    {companyInfo.compName.charAt(0).toUpperCase()}
+                                                    {companyInfo.storeName.charAt(0).toUpperCase()}
                                                 </Avatar>
 
                                                 <Stack sx={{ flexGrow: 1 }}>
                                                     <Typography variant="subtitle2">
-                                                        {companyInfo.compName}
+                                                        {companyInfo.storeName}
                                                     </Typography>
 
                                                     <Typography
@@ -192,11 +186,11 @@ export function AppShell({
                                                         color="text.secondary"
                                                         sx={{ fontSize: 11 }}
                                                     >
-                                                        {companyInfo.compAddr}
+                                                        {companyInfo.storeAddress}
                                                     </Typography>
                                                 </Stack>
                                                 {
-                                                companyInfo.company === 'workus'   &&
+                                                companyInfo.storeId === accountInfo.currentStoreId &&
                                                 <Button
                                                     size="small"
                                                     variant="contained"

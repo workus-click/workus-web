@@ -1,58 +1,44 @@
 import { redirect } from "react-router";
-
-type ApiResponse<S, E> = {
-    code: string
-    message: string
-    data: S
-    error: E | null
-}
+import { refreshMe } from "../../../shared/api/meSession.ts";
 
 type MeCompany = {
     storeId: number
     storeName: string
-}
-
-type MeResponse = {
-    userId: number
-    loginId: string
-    name: string
-    companies: MeCompany[]
+    storeAddress: string
 }
 
 export interface accountInfo {
     name : string,
     detail : string,
     compName : string,
+    currentStoreId: number,
+    companies: MeCompany[],
 }
 
 export async function requireAuth(
     { request }: { request: Request }
 ) {
-    const response = await fetch('/api/auth/me', {
-        credentials: 'include',
-    });
-
-    if (response.status === 401 || response.status === 403) {
+    const meResponse = await refreshMe()
+    if (!meResponse) {
         return redirect('/login');
     }
 
-    if (!response.ok) {
-        throw response;
-    }
-
-    const meResponse = await response.json() as ApiResponse<MeResponse, boolean>;
     const pathname = new URL(request.url).pathname;
 
-    if (meResponse.data.companies.length === 0) {
+    if (meResponse.companies.length === 0) {
         if (pathname !== '/onboarding' && pathname !== '/store/register') {
             return redirect('/onboarding');
         }
         return null;
     }
 
+    const currentStore = meResponse.companies[0];
+
     return {
-        name: meResponse.data.name,
-        detail: meResponse.data.loginId,
-        compName: meResponse.data.companies[0].storeName,
+        name: meResponse.name,
+        detail: meResponse.loginId,
+        compName: currentStore.storeName,
+        currentStoreId: currentStore.storeId,
+        companies: meResponse.companies,
     } satisfies accountInfo;
 }

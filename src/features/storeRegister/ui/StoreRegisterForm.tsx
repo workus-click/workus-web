@@ -4,8 +4,12 @@ import { Alert, Stack, TextField } from '@mui/material'
 import { ArrowBack } from '@mui/icons-material'
 import { useNavigate } from 'react-router'
 import { HTTPError } from 'ky'
-import { AppButton, AuthForm } from '../../../shared/ui'
+import { AddressInput, AppButton, AuthForm } from '../../../shared/ui'
 import { apiClient } from '../../../shared/api'
+import { issueAuthToken } from '../../../shared/api/meSession'
+import type { AddressValue } from '../../../shared/ui/address/AddressInput'
+
+type StoreAddressValue = AddressValue
 
 type StoreRegistrationFormState = {
     storeName: string
@@ -13,8 +17,7 @@ type StoreRegistrationFormState = {
     representativeName: string
     businessType: string
     contactPhoneNumber: string
-    residentNumber: string
-    storeAddress: string
+    storeAddress: StoreAddressValue
 }
 
 const initialFormState: StoreRegistrationFormState = {
@@ -23,17 +26,29 @@ const initialFormState: StoreRegistrationFormState = {
     representativeName: '',
     businessType: '',
     contactPhoneNumber: '',
-    residentNumber: '',
-    storeAddress: '',
+    storeAddress: {
+        zoneCode: '',
+        address: '',
+        detailAddress: '',
+        fullAddress: '',
+    },
 }
 
 type APIResponseMessage = {
     message?: string
 }
 
-type FieldKey = keyof StoreRegistrationFormState
+type FormFieldKey = keyof StoreRegistrationFormState
+type TextFieldKey = Exclude<FormFieldKey, 'storeAddress'>
 
-type FormErrors = Partial<Record<FieldKey, string>>
+type FormErrors = {
+    storeName?: string
+    businessNumber?: string
+    representativeName?: string
+    businessType?: string
+    contactPhoneNumber?: string
+    storeAddress?: string
+}
 
 const onlyDigits = (value: string) => value.replace(/\D/g, '')
 
@@ -48,22 +63,12 @@ const formatBusinessNumber = (value: string) => {
     return `${digits.slice(0, 3)}-${digits.slice(3, 5)}-${digits.slice(5)}`
 }
 
-const formatResidentNumber = (value: string) => {
-    const digits = onlyDigits(value).slice(0, 13)
-    if (digits.length <= 6) {
-        return digits
-    }
-    return `${digits.slice(0, 6)}-${digits.slice(6)}`
-}
-
-const requiredFieldLabels: Record<FieldKey, string> = {
+const requiredTextFieldLabels: Record<TextFieldKey, string> = {
     storeName: '매장명',
     businessNumber: '사업자등록번호',
     representativeName: '대표자명',
     businessType: '업종',
     contactPhoneNumber: '대표전화',
-    residentNumber: '주민등록번호',
-    storeAddress: '사업장주소',
 }
 
 export function StoreRegisterForm() {
@@ -75,7 +80,13 @@ export function StoreRegisterForm() {
     const [successMessage, setSuccessMessage] = useState('')
 
     const isSubmitDisabled = useMemo(() => {
-        return loading || Object.values(form).some((value) => !value.trim())
+        return loading ||
+            !form.storeName.trim() ||
+            !form.businessNumber.trim() ||
+            !form.representativeName.trim() ||
+            !form.businessType.trim() ||
+            !form.contactPhoneNumber.trim() ||
+            !form.storeAddress.fullAddress.trim()
     }, [form, loading])
 
     const resolveErrorMessage = async (err: unknown, fallback: string) => {
@@ -90,20 +101,21 @@ export function StoreRegisterForm() {
     }
 
     const validate = () => {
-        const nextErrors: FormErrors = {}
+    const nextErrors: FormErrors = {}
 
-        ;(Object.keys(form) as FieldKey[]).forEach((key) => {
+        ;(Object.keys(requiredTextFieldLabels) as TextFieldKey[]).forEach((key) => {
+            const fieldLabel = requiredTextFieldLabels[key]
             if (!form[key].trim()) {
-                nextErrors[key] = `${requiredFieldLabels[key]}은(는) 필수입니다.`
+                nextErrors[key] = `${fieldLabel}은(는) 필수입니다.`
             }
         })
 
-        if (!nextErrors.businessNumber && onlyDigits(form.businessNumber).length !== 10) {
-            nextErrors.businessNumber = '사업자등록번호 형식이 올바르지 않습니다.'
+        if (!form.storeAddress.fullAddress.trim()) {
+            nextErrors.storeAddress = '사업장주소는 필수입니다.'
         }
 
-        if (!nextErrors.residentNumber && onlyDigits(form.residentNumber).length !== 13) {
-            nextErrors.residentNumber = '주민등록번호 형식이 올바르지 않습니다.'
+        if (!nextErrors.businessNumber && onlyDigits(form.businessNumber).length !== 10) {
+            nextErrors.businessNumber = '사업자등록번호 형식이 올바르지 않습니다.'
         }
 
         setErrors(nextErrors)
@@ -111,15 +123,11 @@ export function StoreRegisterForm() {
         return Object.keys(nextErrors).length === 0
     }
 
-    const handleChange = (name: FieldKey) => (event: ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (name: TextFieldKey) => (event: ChangeEvent<HTMLInputElement>) => {
         let value = event.target.value
 
         if (name === 'businessNumber') {
             value = formatBusinessNumber(value)
-        }
-
-        if (name === 'residentNumber') {
-            value = formatResidentNumber(value)
         }
 
         setForm((prev) => ({
@@ -147,12 +155,13 @@ export function StoreRegisterForm() {
                     representativeName: form.representativeName,
                     businessType: form.businessType,
                     contactPhoneNumber: form.contactPhoneNumber,
-                    residentNumber: onlyDigits(form.residentNumber),
-                    storeAddress: form.storeAddress,
+                    storeZipCode: form.storeAddress.zoneCode,
+                    storeAddress: form.storeAddress.fullAddress,
                 },
             }).json<APIResponseMessage>()
 
             setSuccessMessage('매장 정보가 등록되었습니다.')
+            issueAuthToken()
             navigate('/', { replace: true })
         } catch (err) {
             const message = await resolveErrorMessage(err, '매장 등록에 실패했습니다.')
@@ -164,6 +173,18 @@ export function StoreRegisterForm() {
 
     const handleBack = () => {
         navigate('/onboarding')
+    }
+
+    const handleStoreAddressChange = (nextAddress: StoreAddressValue) => {
+        setForm((prev) => ({
+            ...prev,
+            storeAddress: nextAddress,
+        }))
+        setErrors((prev) => {
+            const next = { ...prev }
+            delete next.storeAddress
+            return next
+        })
     }
 
     return (
@@ -237,25 +258,11 @@ export function StoreRegisterForm() {
                     helperText={errors.contactPhoneNumber}
                     required
                 />
-                <TextField
-                    label='주민등록번호'
-                    value={form.residentNumber}
-                    onChange={handleChange('residentNumber')}
-                    error={!!errors.residentNumber}
-                    helperText={errors.residentNumber}
-                    placeholder='123456-1234567'
-                    slotProps={{
-                        htmlInput: {
-                            inputMode: 'numeric',
-                            maxLength: 14,
-                        },
-                    }}
-                    required
-                />
-                <TextField
-                    label='사업장주소'
+                <AddressInput
+                    label=''
+                    addressLabel='사업장주소'
                     value={form.storeAddress}
-                    onChange={handleChange('storeAddress')}
+                    onChange={handleStoreAddressChange}
                     error={!!errors.storeAddress}
                     helperText={errors.storeAddress}
                     required

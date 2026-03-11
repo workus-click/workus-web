@@ -5,7 +5,7 @@ import { HrPage } from '../../pages/hr'
 import { SalaryPage } from '../../pages/salary'
 import { LoginPage } from '../../pages/login'
 import { OnboardingPage } from '../../pages/onboarding'
-import { InviteAcceptPage } from '../../pages/inviteAccept'
+import { InviteAcceptPage, InviteApprovalPage } from '../../pages/inviteAccept'
 import { StoreRegisterPage } from '../../pages/storeRegister'
 import { DefaultLayout } from './layouts/DefaultLayout.tsx'
 import { requireAuth } from "./loaders/requireAuth.ts";
@@ -33,6 +33,11 @@ const router = createBrowserRouter([
         path: '/invite/list',
         loader: requireInviteAccess,
         element: <InviteAcceptPage />,
+    },
+    {
+        path: '/invite/accept/:token',
+        loader: requireInviteAccess,
+        element: <InviteApprovalPage />,
     },
     {
         path: '/store/register',

@@ -27,23 +27,43 @@ export function AuthForm({ title, description, children, footer, formProps }: Au
             variant='outlined'
             sx={{
                 width: '100%',
-                maxWidth: 420,
-                p: { xs: 3, md: 4 },
+                minWidth: { xs: 'auto', sm: 420 },
+                maxWidth: 'min(560px, calc(100dvh - 160px))',
+                minHeight: 'min(760px, calc(100dvh - 140px))',
+                mx: 'auto',
+                p: { xs: 4, md: 6 },
                 borderRadius: 2,
+                boxSizing: 'border-box',
             }}
         >
-            <Stack spacing={2} sx={{ minHeight: 1 }}>
-                <Stack alignItems='center' spacing={0.5}>
-                    <Box component='img' src={workusLogo} alt='WorkUs logo' sx={{ height: 56 }} />
-                    <Typography variant='h5' sx={{ fontWeight: 700, color: '#111' }}>
-                        {title}
-                    </Typography>
-                    <Typography variant='body2' sx={{ color: '#666' }}>
-                        {description}
-                    </Typography>
+            <Stack sx={{ minHeight: 1 }}>
+                <Stack
+                    spacing={4}
+                    sx={{
+                        flex: 1,
+                        width: '100%',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Stack alignItems='center' spacing={1.5} sx={{ textAlign: 'center' }}>
+                        <Box component='img' src={workusLogo} alt='WorkUs logo' sx={{ height: { xs: 72, md: 84 }, width: 'auto' }} />
+                        <Typography variant='h4' sx={{ fontWeight: 700, color: '#111', lineHeight: 1.2 }}>
+                            {title}
+                        </Typography>
+                        <Typography variant='body1' sx={{ color: '#666', lineHeight: 1.5 }}>
+                            {description}
+                        </Typography>
+                    </Stack>
+                    <Box sx={{ mx: 'auto', width: '100%', maxWidth: 420 }}>
+                        {content}
+                    </Box>
                 </Stack>
-                <Box sx={{ mt: 3 }}>{content}</Box>
-                {footer && <Box sx={{ mt: 'auto', pt: 4, textAlign: 'center' }}>{footer}</Box>}
+                {footer && (
+                    <Box sx={{ mt: 'auto', pt: 4, mx: 'auto', width: '100%', maxWidth: 420, textAlign: 'center' }}>
+                        {footer}
+                    </Box>
+                )}
             </Stack>
         </Paper>
     )

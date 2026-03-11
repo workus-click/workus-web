@@ -9,17 +9,26 @@ export function AuthPageShell({ children }: AuthPageShellProps) {
     return (
         <Box
             sx={{
-                minHeight: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
+                minHeight: '100dvh',
+                display: 'grid',
+                gridTemplateRows: '1fr auto',
                 px: 2,
+                py: 4,
+                boxSizing: 'border-box',
                 bgcolor: 'background.default',
             }}
         >
-            {children}
-            <Stack spacing={0.5} alignItems='center' mt={4}>
+            <Box
+                sx={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                {children}
+            </Box>
+            <Stack spacing={0.5} alignItems='center' pt={4}>
                 <Typography variant='body2' color='text.secondary'>
                     © {new Date().getFullYear()} WorkUs. All rights reserved.
                 </Typography>

@@ -1,20 +1,17 @@
 import { redirect } from 'react-router'
+import { refreshMe } from '../../../shared/api/meSession.ts'
 
-export async function requireInviteAccess() {
-    const response = await fetch('/api/auth/me', {
-        credentials: 'include',
-    })
-
-    if (response.status === 401 || response.status === 403) {
+export async function requireInviteAccess(
+    { params }: { params: Record<string, string | undefined> }
+) {
+    const meResponse = await refreshMe()
+    if (!meResponse) {
+        const token = params.token
+        if (token) {
+            return redirect(`/login?invite=${encodeURIComponent(token)}`)
+        }
         return redirect('/login')
     }
-
-    if (!response.ok) {
-        throw response
-    }
-
-    // API 결과는 사용하지 않되 인증 확인만 수행한다.
-    await response.json()
 
     return null
 }

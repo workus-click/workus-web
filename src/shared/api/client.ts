@@ -1,4 +1,5 @@
 import ky from 'ky'
+import { clearAuthToken } from './meSession'
 
 const SESSION_EXCLUDED_PATHS = new Set([
     '/api/auth/login',
@@ -19,6 +20,8 @@ export const apiClient = ky.create({
                 if (SESSION_EXCLUDED_PATHS.has(pathname)) {
                     return
                 }
+
+                clearAuthToken()
 
                 if (window.location.pathname !== '/login') {
                     window.location.assign('/login')

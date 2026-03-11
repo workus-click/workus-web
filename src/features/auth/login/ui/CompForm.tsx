@@ -50,12 +50,13 @@ function RoleCard({ title, description, onClick }: RoleCardProps) {
 }
 
 type CompFormProps = {
-    onLogout: () => void
+    actionLabel: string
+    onAction: () => void
     onInvite: () => void
     onStoreRegister: () => void
 }
 
-export function CompForm({ onLogout, onInvite, onStoreRegister }: CompFormProps) {
+export function CompForm({ actionLabel, onAction, onInvite, onStoreRegister }: CompFormProps) {
     return (
         <AuthForm
             title='안녕하세요!'
@@ -65,8 +66,8 @@ export function CompForm({ onLogout, onInvite, onStoreRegister }: CompFormProps)
                     <Typography variant='body1' sx={{ color: '#333', fontWeight: 700, mb: 1.5 }}>
                         + 추가하기
                     </Typography>
-                    <AppButton variant='contained' fullWidth onClick={onLogout}>
-                        로그아웃
+                    <AppButton variant='contained' fullWidth onClick={onAction}>
+                        {actionLabel}
                     </AppButton>
                 </Stack>
             }

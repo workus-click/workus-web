@@ -1,43 +1,22 @@
 import { redirect } from "react-router";
-
-type ApiResponse<S, E> = {
-    code: string
-    message: string
-    data: S
-    error: E | null
-}
-
-type MeCompany = {
-    storeId: number
-    storeName: string
-}
-
-type MeResponse = {
-    userId: number
-    loginId: string
-    name: string
-    companies: MeCompany[]
-}
+import { clearAuthToken, refreshMe } from "../../../shared/api/meSession.ts";
 
 export async function redirectIfAuth({ request }: { request: Request }) {
     const { searchParams } = new URL(request.url)
+    const inviteToken = searchParams.get('invite')
 
     if (searchParams.get('logout') === '1') {
+        clearAuthToken()
         return null
     }
 
-    const response = await fetch('/api/auth/me', {
-        credentials: 'include',
-    });
-
-    if (response.status === 401 || response.status === 403) {
+    const meResponse = await refreshMe()
+    if (!meResponse) {
         return null;
     }
-
-    if (!response.ok) {
-        throw response;
+    if (inviteToken) {
+        return redirect(`/invite/accept/${encodeURIComponent(inviteToken)}`)
     }
 
-    const meResponse = await response.json() as ApiResponse<MeResponse, boolean>;
-    return redirect(meResponse.data.companies.length === 0 ? '/onboarding' : '/');
+    return redirect(meResponse.companies.length === 0 ? '/onboarding' : '/');
 }
