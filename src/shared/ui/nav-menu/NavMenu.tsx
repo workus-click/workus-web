@@ -19,7 +19,6 @@ function NavMenu({ items }: NavMenuProps) {
             sx={{
                 borderBottom: '1px solid',
                 borderColor: 'divider',
-                bgcolor: 'background.paper',
             }}
         >
             <Stack
@@ -35,16 +34,16 @@ function NavMenu({ items }: NavMenuProps) {
                 {items.map((item) => (
                     <Typography
                         key={item.label}
-                        variant="body2"
+                        variant="body1"
                         onClick={item.onClick}
                         sx={{
                             cursor: item.onClick ? 'pointer' : 'default',
-                            fontWeight: item.isActive ? 800 : 400,
-                            color: item.isActive ? 'text.primary' : 'text.secondary',
+                            fontWeight: item.isActive ? 1000 : 600,
+                            color: item.isActive ? 'common.white' : 'grey.500',
                             transition: 'color 0.5s ease, font-weight 0.1s ease',
                             "&:hover": !item.isActive ? {
-                                fontWeight: 600,
-                                color: 'text.primary'
+                                fontWeight: 800,
+                                color: 'common.white'
                             } : {}
                         }}
                     >
