@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import Calendar from '@toast-ui/calendar';
 import '@toast-ui/calendar/dist/toastui-calendar.min.css';
 import { CalendarHeader } from './CalendarHeader';
+import { getWeekCount, DAY_HEADER_HEIGHT, WEEK_ROW_HEIGHT } from './utils';
 
 export interface CalendarEvent {
     id: string;
@@ -128,6 +129,7 @@ export function ToastCalendar({
     useEffect(() => {
         if (!instanceRef.current) return;
         instanceRef.current.setDate(new Date(year, month - 1, 1));
+        instanceRef.current.render();
     }, [year, month]);
 
     // events props 변경 시 이벤트 업데이트
@@ -150,6 +152,9 @@ export function ToastCalendar({
         instanceRef.current.createEvents(eventsWithReadOnly);
     }, [events, editable]);
 
+    const weekCount = useMemo(() => getWeekCount(year, month), [year, month]);
+    const calendarHeight = DAY_HEADER_HEIGHT + weekCount * WEEK_ROW_HEIGHT;
+
     // 헤더에서 월 변경 시
     const handleNavigate = (newYear: number, newMonth: number) => {
         onNavigate?.(newYear, newMonth);
@@ -169,7 +174,7 @@ export function ToastCalendar({
             <div
                 ref={calendarRef}
                 style={{
-                    height: '550px',
+                    height: `${calendarHeight}px`,
                     width: '100%'
                 }}
             />
