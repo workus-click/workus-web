@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import {
     Box,
     Button,
@@ -17,6 +18,8 @@ import {
 } from '@mui/material';
 import styled from '@emotion/styled';
 import CloseIcon from '@mui/icons-material/Close';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 export interface SalaryLedgerDocumentDialogProps {
     open: boolean;
@@ -196,6 +199,69 @@ export function SalaryLedgerDocumentDialog({
     onClose,
     type,
 }: SalaryLedgerDocumentDialogProps) {
+    // PDF 캡처 대상 영역 ref
+    const contentRef = useRef<HTMLDivElement>(null);
+
+    // html2canvas 캡처 > jsPDF로 PDF 생성
+    const generatePdf = async () => {
+        const element = contentRef.current;
+        if (!element) return null;
+
+        // DOM > Canvas 변환 (scale: 4 고해상도)
+        const canvas = await html2canvas(element, {
+            scale: 4,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+        });
+
+        // Canvas > PNG 이미지 데이터 변환
+        const imgData = canvas.toDataURL('image/png');
+
+        // A4 가로 방향 PDF 생성
+        const pdf = new jsPDF('landscape', 'mm', 'a4');
+
+        // PDF 페이지 크기
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        // 이미지가 PDF 페이지에 맞도록 비율 계산
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+
+        // 이미지를 PDF 중앙에 배치
+        const x = (pdfWidth - imgWidth * ratio) / 2;
+        const y = 0;
+
+        pdf.addImage(imgData, 'PNG', x, y, imgWidth * ratio, imgHeight * ratio);
+        return pdf;
+    };
+
+    // 인쇄 핸들러 - PDF를 생성한 뒤 브라우저 인쇄 (PDF 다운로드와 동일한 출력물)
+    const handlePrint = async () => {
+        const pdf = await generatePdf();
+        if (!pdf) return;
+
+        // PDF를 blob URL로 변환 후 새 창에서 인쇄
+        const blob = pdf.output('blob');
+        const url = URL.createObjectURL(blob);
+
+        const printWindow = window.open(url, '_blank');
+        if (!printWindow) return;
+
+        printWindow.onload = () => {
+            printWindow.print();
+            URL.revokeObjectURL(url);
+        };
+    };
+
+    // PDF 다운로드 핸들러
+    const handleDownloadPdf = async () => {
+        const pdf = await generatePdf();
+        if (!pdf) return;
+
+        pdf.save('임금대장.pdf');
+    };
 
     // 계산식
     const totals = DUMMY_LEDGER_DATA.reduce(
@@ -274,7 +340,7 @@ export function SalaryLedgerDocumentDialog({
             >
                 <CloseIcon />
             </IconButton>
-            <DialogContent dividers sx={{ p: 4 }}>
+            <DialogContent dividers sx={{ p: 4 }} ref={contentRef}>
                 <Stack direction="row" justifyContent="flex-end" alignItems="flex-end" mb={2}>
                     <Stack direction="row" spacing={2}>
                         <Typography variant="body2" sx={{ fontSize: 13 }}>
@@ -443,6 +509,7 @@ export function SalaryLedgerDocumentDialog({
                 {type === 'print' ? (
                     <Button
                         variant="contained"
+                        onClick={handlePrint}
                         sx={{ width: 120, bgcolor: '#0d6efd', '&:hover': { bgcolor: '#0b5ed7' } }}
                     >
                         인쇄하기
@@ -450,6 +517,7 @@ export function SalaryLedgerDocumentDialog({
                 ) : (
                     <Button
                         variant="contained"
+                        onClick={handleDownloadPdf}
                         sx={{ width: 120, bgcolor: '#dc3545', '&:hover': { bgcolor: '#bb2d3b' } }}
                     >
                         PDF 다운로드
