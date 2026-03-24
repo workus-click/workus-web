@@ -4,6 +4,7 @@ import { HirePage } from '../../pages/hire'
 import { HrPage } from '../../pages/hr'
 import { SalaryPage } from '../../pages/salary'
 import { LoginPage } from '../../pages/login'
+import { PayslipPage } from '../../pages/payslip'
 import { DefaultLayout } from './layouts/DefaultLayout.tsx'
 import { requireAuth } from "./loaders/requireAuth.ts";
 import { redirectIfAuth } from "./loaders/redirectIfAuth.ts";
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
         path: '/signup',
         loader : redirectIfAuth,
         element: <SignupPage/>,
+    },
+    {
+        path: '/payslip',
+        element: <PayslipPage />,
     },
     {
         element: <DefaultLayout />,
