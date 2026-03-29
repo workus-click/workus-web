@@ -1,13 +1,14 @@
-import { Box, Button, Stack, TextField, Typography, Chip, Divider } from '@mui/material'
+import { Box, Button, Stack, TextField, Typography, Divider } from '@mui/material'
 import { styled } from '@mui/material/styles';
-import { EmployeeCardList, type Employee } from '../../../widgets/salary/employeeCardList';
-import CalculatorIcon from '../assets/calculator.svg';
-import DeadlineIcon from '../assets/floppy-disk.svg';
-import CloseIcon from '../assets/close.svg';
+import { EmployeeCardList, type Employee } from '../../../../widgets/salary/employeeCardList';
+import CalculatorIcon from '@mui/icons-material/Calculate';
+import DeadlineIcon from '@mui/icons-material/Save';
+import CloseIcon from '@mui/icons-material/Close';
 import { useState } from 'react';
 import { SalaryFormulaSettingDialog } from '../../../widgets/salary/salaryFormulaSettingDialog';
 import { ToastCalendar, type CalendarEvent } from '../../../shared/ui/calendar';
 import { WeeklySummary } from '../../../features/salary/payroll-summary';
+import { SalaryFormulaSettingDialog } from '../../../../widgets/salary/salaryFormulaSettingDialog';
 
 
 const MyTextField = styled(TextField)({
@@ -19,7 +20,7 @@ const MyTextField = styled(TextField)({
 });
 
 
-export function SalaryPage() {
+export function SalaryManagePage() {
     const employees: Employee[] = [
         { storeUserId: 1, empName: '김훈이', payInfo: '알바 / 시급: 12,000' },
         { storeUserId: 2, empName: '김지원', payInfo: '직원 / 월급: 3,000,000' },
@@ -31,6 +32,24 @@ export function SalaryPage() {
         { storeUserId: 8, empName: '김태호', payInfo: '직원 / 월급: 3,200,000' },
         { storeUserId: 9, empName: '박소영', payInfo: '알바 / 시급: 12,000' },
         { storeUserId: 10, empName: '최준호', payInfo: '직원 / 월급: 2,700,000' }
+    ];
+
+    const paymentItems = [
+        { name: '기본급', amount: '1,520,000 원', formula: '12,000 × 126.66' },
+        { name: '연장근무수당', amount: '180,000 원', formula: '12,000 × 10 × 1.5' },
+        { name: '주휴수당', amount: '72,000 원', formula: '12,000 × 6' },
+        { name: '휴일근무수당', amount: '72,000 원', formula: '12,000 × 6' },
+        { name: '야간근무수당', amount: '72,000 원', formula: '12,000 × 6' },
+        { name: '기타수당', amount: '72,000 원' },
+    ];
+
+    const deductionItems = [
+        { name: '소득세', amount: '14,500 원' },
+        { name: '지방소득세', amount: '1,450 원', formula: '14,500 × 10%' },
+        { name: '국민연금', amount: '77,490 원', formula: '1,722,000 × 4.5%' },
+        { name: '건강보험', amount: '61,040 원', formula: '1,722,000 × 3.545%' },
+        { name: '장기요양보험', amount: '7,900 원', formula: '1,722,000 × 0.4591%' },
+        { name: '고용보험', amount: '15,490 원', formula: '1,722,000원 × 0.9%' },
     ];
 
     const [salaryFormulaSettingDialogOpen, setSalaryFormulaSettingDialogOpen] = useState(false);
@@ -103,7 +122,7 @@ export function SalaryPage() {
             <Stack spacing={{ xs: 1, sm: 2 }} direction='row' justifyContent='space-between' useFlexGap sx={{ flexWrap: 'wrap', mb: 3 }} >
                 <Stack spacing={3} direction='row'>
                     <Typography variant='h4'>급여입력</Typography>
-                    <Typography variant='subtitle1' sx={{ alignSelf: 'flex-end', color: '#6D6D6D' }}>그
+                    <Typography variant='subtitle1' sx={{ alignSelf: 'flex-end', color: '#6D6D6D' }}>
                         직원의 급여를 계산하고 급여명세서를 전송합니다.
                     </Typography>
                 </Stack>
@@ -160,22 +179,8 @@ export function SalaryPage() {
             {/* 하단 */}
             <Stack spacing={{ xs: 1, sm: 2 }} direction={{ xs: 'column', md: 'row' }}>
                 {/* 좌측: 직원 목록 */}
-                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', maxHeight: { xs: 'none', md: 'calc(100vh - 350px)' } }}>
-                    {/* 헤더 */}
-                    <Stack direction='row' sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'nowrap', minHeight: 48 }}>
-                        <Typography variant='h5' sx={{ whiteSpace: 'nowrap' }}>직원목록</Typography>
-                        <Stack direction='row' spacing={0.5} sx={{ flexWrap: 'nowrap' }}>
-                            <Chip label='전체 선택' size='small' clickable />
-                            <Chip label='알바생만' size='small' color='primary' clickable />
-                            <Chip label='직원만' size='small' color='success' clickable />
-                            <Chip label='선택 해제' size='small' variant='outlined' clickable />
-                        </Stack>
-                    </Stack>
-
-                    {/* 직원 리스트 */}
-                    <Box sx={{ border: '1px solid', borderColor: 'divider', flex: 1, overflow: 'auto', minHeight: 0 }}>
-                        <EmployeeCardList items={employees} />
-                    </Box>
+                <Box sx={{ flex: 1, maxHeight: { xs: 'none', md: 'calc(100vh - 350px)' } }}>
+                    <EmployeeCardList items={employees} />
                 </Box>
 
                 {/* 우측: 출퇴근내역 + 지급항목/공제항목 */}
@@ -188,7 +193,7 @@ export function SalaryPage() {
                                 color='secondary'
                                 sx={{ minWidth: 110, whiteSpace: 'nowrap', justifyContent: 'space-between', px: 2 }}
                             >
-                                <img src={CalculatorIcon} style={{ width: 18, height: 18, filter: 'brightness(0) invert(1)' }} alt="" />
+                                <CalculatorIcon sx={{ fontSize: 18 }} />
                                 급여계산
                             </Button>
                             <Button
@@ -196,7 +201,7 @@ export function SalaryPage() {
                                 color='secondary'
                                 sx={{ minWidth: 110, whiteSpace: 'nowrap', justifyContent: 'space-between', px: 2 }}
                             >
-                                <img src={DeadlineIcon} style={{ width: 18, height: 18, filter: 'brightness(0) invert(1)' }} alt="" />
+                                <DeadlineIcon sx={{ fontSize: 18 }} />
                                 마감
                             </Button>
                             <Button
@@ -204,7 +209,7 @@ export function SalaryPage() {
                                 color='secondary'
                                 sx={{ minWidth: 110, whiteSpace: 'nowrap', justifyContent: 'space-between', px: 2 }}
                             >
-                                <img src={CloseIcon} style={{ width: 18, height: 18 }} alt="" />
+                                <CloseIcon sx={{ fontSize: 18 }} />
                                 마감취소
                             </Button>
                         </Stack>
@@ -244,70 +249,15 @@ export function SalaryPage() {
                                 {/* 항목 리스트 */}
                                 <Box sx={{ p: 2, px: 3 }}>
                                     <Stack spacing={2}>
-                                        {/* 기본급 */}
-                                        <Stack>
-                                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                                <Typography fontWeight='medium'>기본급</Typography>
-                                                <Typography fontWeight='bold'>1,520,000 원</Typography>
-                                            </Stack>
-                                            <Typography variant='caption' color='text.secondary'>
-                                                12,000 × 126.66
-                                            </Typography>
-                                        </Stack>
-
-                                        {/* 연장근무수당 */}
-                                        <Stack>
-                                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                                <Typography fontWeight='medium'>연장근무수당</Typography>
-                                                <Typography fontWeight='bold'>180,000 원</Typography>
-                                            </Stack>
-                                            <Typography variant='caption' color='text.secondary'>
-                                                12,000 × 10 × 1.5
-                                            </Typography>
-                                        </Stack>
-
-                                        {/* 주휴수당 */}
-                                        <Stack>
-                                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                                <Typography fontWeight='medium'>주휴수당</Typography>
-                                                <Typography fontWeight='bold'>72,000 원</Typography>
-                                            </Stack>
-                                            <Typography variant='caption' color='text.secondary'>
-                                                12,000 × 6
-                                            </Typography>
-                                        </Stack>
-
-                                        {/* 휴일근무수당 */}
-                                        <Stack>
-                                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                                <Typography fontWeight='medium'>휴일근무수당</Typography>
-                                                <Typography fontWeight='bold'>72,000 원</Typography>
-                                            </Stack>
-                                            <Typography variant='caption' color='text.secondary'>
-                                                12,000 × 6
-                                            </Typography>
-                                        </Stack>
-
-                                        {/* 야간근무수당 */}
-                                        <Stack>
-                                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                                <Typography fontWeight='medium'>야간근무수당</Typography>
-                                                <Typography fontWeight='bold'>72,000 원</Typography>
-                                            </Stack>
-                                            <Typography variant='caption' color='text.secondary'>
-                                                12,000 × 6
-                                            </Typography>
-                                        </Stack>
-
-                                        {/* 기타수당 */}
-                                        <Stack>
-                                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                                <Stack direction='row' spacing={1} alignItems='center'>
-                                                    <Typography fontWeight='medium'>기타수당</Typography>
+                                        {paymentItems.map((item, index) => (
+                                            <Stack key={index} direction='row' justifyContent='space-between' alignItems='center'>
+                                                <Stack>
+                                                    <Typography fontWeight='medium'>{item.name}</Typography>
+                                                    {item.formula && <Typography variant='caption' color='text.secondary'>{item.formula}</Typography>}
                                                 </Stack>
-                                                <Typography fontWeight='bold'>72,000 원</Typography>
+                                                <Typography fontWeight='bold'>{item.amount}</Typography>
                                             </Stack>
-                                        </Stack>
+                                        ))}
                                     </Stack>
                                 </Box>
                                 <Divider sx={{ width: '95%', mx: 'auto', borderColor: '#94A3B8' }} />
@@ -338,68 +288,15 @@ export function SalaryPage() {
                                 {/* 항목 리스트 */}
                                 <Box sx={{ p: 2, px: 3 }}>
                                     <Stack spacing={2}>
-                                        {/* 소득세 */}
-                                        <Stack>
-                                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                                <Typography fontWeight='medium'>소득세</Typography>
-                                                <Typography fontWeight='bold'>14,500 원</Typography>
+                                        {deductionItems.map((item, index) => (
+                                            <Stack key={index} direction='row' justifyContent='space-between' alignItems='center'>
+                                                <Stack>
+                                                    <Typography fontWeight='medium'>{item.name}</Typography>
+                                                    {item.formula && <Typography variant='caption' color='text.secondary'>{item.formula}</Typography>}
+                                                </Stack>
+                                                <Typography fontWeight='bold'>{item.amount}</Typography>
                                             </Stack>
-                                        </Stack>
-
-                                        {/* 지방소득세 */}
-                                        <Stack>
-                                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                                <Typography fontWeight='medium'>지방소득세</Typography>
-                                                <Typography fontWeight='bold'>1,450 원</Typography>
-                                            </Stack>
-                                            <Typography variant='caption' color='text.secondary'>
-                                                14,500 × 10%
-                                            </Typography>
-                                        </Stack>
-
-                                        {/* 국민연금 */}
-                                        <Stack>
-                                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                                <Typography fontWeight='medium'>국민연금</Typography>
-                                                <Typography fontWeight='bold'>77,490 원</Typography>
-                                            </Stack>
-                                            <Typography variant='caption' color='text.secondary'>
-                                                1,722,000 × 4.5%
-                                            </Typography>
-                                        </Stack>
-
-                                        {/* 건강보험 */}
-                                        <Stack>
-                                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                                <Typography fontWeight='medium'>건강보험</Typography>
-                                                <Typography fontWeight='bold'>61,040 원</Typography>
-                                            </Stack>
-                                            <Typography variant='caption' color='text.secondary'>
-                                                1,722,000 × 3.545%
-                                            </Typography>
-                                        </Stack>
-
-                                        {/* 장기요양보험 */}
-                                        <Stack>
-                                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                                <Typography fontWeight='medium'>장기요양보험</Typography>
-                                                <Typography fontWeight='bold'>7,900 원</Typography>
-                                            </Stack>
-                                            <Typography variant='caption' color='text.secondary'>
-                                                1,722,000 × 0.4591%
-                                            </Typography>
-                                        </Stack>
-
-                                        {/* 고용보험 */}
-                                        <Stack>
-                                            <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                                                <Typography fontWeight='medium'>고용보험</Typography>
-                                                <Typography fontWeight='bold'>15,490 원</Typography>
-                                            </Stack>
-                                            <Typography variant='caption' color='text.secondary'>
-                                                1,722,000원×0.9%
-                                            </Typography>
-                                        </Stack>
+                                        ))}
                                     </Stack>
                                 </Box>
                                 <Divider sx={{ width: '95%', mx: 'auto', borderColor: '#94A3B8' }} />

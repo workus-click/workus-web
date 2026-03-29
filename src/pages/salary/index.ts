@@ -1,1 +1,2 @@
-export { SalaryPage } from './ui/SalaryPage'
+export { SalaryManagePage } from './manage'
+export { SalaryLedgerPage } from './ledger'

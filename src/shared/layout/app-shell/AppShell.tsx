@@ -1,6 +1,7 @@
 import type { PropsWithChildren, ReactNode } from 'react'
 import { useState } from 'react'
-import { AppBar, Avatar, Box, Button, Container, Divider, Menu, Stack, Toolbar, Typography } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add';
+import {AppBar, Avatar, Box, Button, Container, Divider, Menu, Paper, Stack, Toolbar, Typography,  IconButton} from '@mui/material'
 import { NavMenu } from '../../ui'
 import {useNavigate} from "react-router";
 
@@ -16,9 +17,16 @@ type AppShellProps = PropsWithChildren<{
         detail?: string
         avatarUrl?: string
         compName?: string
+        currentStoreId: number
+        companies: Array<{
+            storeId: number
+            storeName: string
+            storeAddress: string
+        }>
     }
     footer?: ReactNode
-    onLogout?: () => void
+    onAddStore?: () => void
+    onLogout?: () => Promise<void> | void
 }>
 
 type AppShellPropsExtended = AppShellProps & {
@@ -29,7 +37,16 @@ type AppShellPropsExtended = AppShellProps & {
     }>
 }
 
-export function AppShell({ brand, headerActions, footer, accountInfo, onLogout, children, navItems }: AppShellPropsExtended) {
+export function AppShell({
+    brand,
+    headerActions,
+    footer,
+    accountInfo,
+    onAddStore,
+    onLogout,
+    children,
+    navItems,
+}: AppShellPropsExtended) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
     const navigate = useNavigate()
     const menuOpen = Boolean(anchorEl)
@@ -42,13 +59,18 @@ export function AppShell({ brand, headerActions, footer, accountInfo, onLogout, 
         setAnchorEl(null)
     }
 
+    const handleAddStore = () => {
+        handleMenuClose()
+        onAddStore?.()
+    }
+
     const handleLogoutClick = () => {
         handleMenuClose()
-        onLogout?.()
+        void onLogout?.()
     }
 
     const defaultFooter = (
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="white">
             © {new Date().getFullYear()} WorkUs. All rights reserved.
         </Typography>
     )
@@ -62,7 +84,7 @@ export function AppShell({ brand, headerActions, footer, accountInfo, onLogout, 
                 sx={{
                     borderBottom: navItems ? 'none' : '1px solid',
                     borderColor: 'divider',
-                    bgcolor: 'background.paper',
+                    bgcolor: 'black',
                     padding: '8',
                 }}
             >
@@ -78,48 +100,140 @@ export function AppShell({ brand, headerActions, footer, accountInfo, onLogout, 
                             />
                         )}
                     </Stack>
+                    {navItems && <NavMenu items={navItems} />}
                     <Box sx={{ flexGrow: 1 }} />
                     {accountInfo && (
                         <>
                             <Typography
-                                variant="subtitle2"
-                                sx={{marginRight : 1}}
+                                variant="subtitle1"
+                                sx={{
+                                    marginRight : 1,
+                                    color: 'common.white',
+                                    fontWeight : 1000
+                                }}
                             >
                                 {`${accountInfo.name}님 안녕하세요!`}
                             </Typography>
+
                             <Avatar
                                 src={accountInfo.avatarUrl}
-                                sx={{ width: 30, height: 30, bgcolor: 'primary.main', cursor: 'pointer' }}
+                                sx={{ ml: 1, width: 30, height: 30, bgcolor : 'common.white', color: 'black', cursor: 'pointer' }}
                                 onClick={handleAvatarClick}
                             >
                                 {accountInfo.name.charAt(0).toUpperCase()}
                             </Avatar>
+
                             <Menu
                                 anchorEl={anchorEl}
                                 open={menuOpen}
                                 onClose={handleMenuClose}
                                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                                sx={{marginTop : 1}}
+                                slotProps={{
+                                    paper: {
+                                        sx: {
+                                            mt: 1,
+                                            width: 300,
+                                        }
+                                    }
+                                }}
                             >
-                                <Stack spacing={0.5} sx={{ px: 2, py: 1.5 }}>
-                                    <Typography variant="subtitle1">{accountInfo.name}</Typography>
+                                <Stack spacing={0.5} sx={{ px: 2, py: 1.5  }}>
+                                    <Typography variant="h5" sx={{fontWeight : 500}}>
+                                        {accountInfo.name} 사장님
+                                    </Typography>
                                     {accountInfo.compName && (
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography variant='subtitle1' color="text.secondary"  sx={{fontWeight : 500}}>
                                             {accountInfo.compName}
-                                        </Typography>
-                                    )}{accountInfo.detail && (
-                                        <Typography variant="body2" color="text.secondary">
-                                            {accountInfo.detail}
                                         </Typography>
                                     )}
                                 </Stack>
-                                <Divider sx={{marginBottom : 1}}/>
-                                <Box sx={{ px: 2, py: 1 }}>
-                                    <Button variant="contained" color="inherit" fullWidth onClick={()=>{}}>
-                                        회사변경
-                                    </Button>
-                                </Box>
+                                <Divider sx={{mb : 1, mx: 2, borderBottomWidth: 2.5}}/>
+                                <Stack spacing={0.5} sx={{ px: 2, py: 1.5 }}>
+                                    <Typography variant='subtitle1' sx={{fontWeight : 500}}>
+                                        매장계정전환
+                                    </Typography>
+
+                                    {accountInfo.companies.map((companyInfo) => (
+                                        <Paper
+                                            key={companyInfo.storeId}
+                                            elevation={0}
+                                        >
+                                            <Stack direction="row" spacing={1} alignItems="center">
+                                                <Avatar
+                                                    src={accountInfo.avatarUrl}
+                                                    sx={{
+                                                        width: 30,
+                                                        height: 30,
+                                                        bgcolor : 'white',
+                                                        color: 'black',
+                                                        border: '1px solid',
+                                                        borderColor: 'grey.400',
+                                                        cursor: 'pointer',
+                                                        fontSize: 14
+                                                    }}
+                                                >
+                                                    {companyInfo.storeName.charAt(0).toUpperCase()}
+                                                </Avatar>
+
+                                                <Stack sx={{ flexGrow: 1 }}>
+                                                    <Typography variant="subtitle2">
+                                                        {companyInfo.storeName}
+                                                    </Typography>
+
+                                                    <Typography
+                                                        variant="overline"
+                                                        color="text.secondary"
+                                                        sx={{ fontSize: 11 }}
+                                                    >
+                                                        {companyInfo.storeAddress}
+                                                    </Typography>
+                                                </Stack>
+                                                {
+                                                companyInfo.storeId === accountInfo.currentStoreId &&
+                                                <Button
+                                                    size="small"
+                                                    variant="contained"
+                                                    sx={{
+                                                        borderRadius: 30,
+                                                        minWidth: 50,
+                                                        height : 20,
+                                                        fontSize: 10,
+                                                        bgcolor : '#667EEA'
+                                                    }}
+                                                >
+                                                    현재
+                                                </Button>
+                                                }
+                                            </Stack>
+                                        </Paper>
+                                    ))}
+                                </Stack>
+                                <Divider sx={{mb : 1, mx: 2, borderBottomWidth: 2.5}}/>
+                                <Stack direction="row" spacing={1} sx={{ px: 2, py: 1}}>
+                                    <IconButton
+                                        onClick={handleAddStore}
+                                        aria-label="새 매장 추가"
+                                        sx={{
+                                            bgcolor: 'grey.200',
+                                            width: 30,
+                                            height: 30
+                                        }}
+                                    >
+                                        <AddIcon />
+                                    </IconButton>
+                                    <Typography
+                                        variant='subtitle2'
+                                        onClick={handleAddStore}
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        새 매장 추가
+                                    </Typography>
+                                </Stack>
                                 <Box sx={{ px: 2, py: 1 }}>
                                     <Button variant="contained" color="inherit" fullWidth onClick={()=>{}}>
                                         회원정보 수정
@@ -138,13 +252,13 @@ export function AppShell({ brand, headerActions, footer, accountInfo, onLogout, 
             </AppBar>
 
             <Toolbar sx={{ minHeight: 48 }} />
-            {navItems && <NavMenu items={navItems} />}
             <Container maxWidth="lg" sx={{ py: { xs: 4, md: 8 }, flexGrow: 1, width: '100%' }}>
                 {children}
             </Container>
             <Box
                 component="footer"
                 sx={{
+                    bgcolor: 'black',
                     borderTop: '1px solid',
                     borderColor: 'divider',
                     py: 3,
