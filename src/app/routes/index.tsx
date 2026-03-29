@@ -4,9 +4,11 @@ import { HirePage } from '../../pages/hire'
 import { HrPage } from '../../pages/hr'
 import { SalaryManagePage, SalaryLedgerPage } from '../../pages/salary'
 import { LoginPage } from '../../pages/login'
+
 import { OnboardingPage } from '../../pages/onboarding'
 import { InviteAcceptPage, InviteApprovalPage } from '../../pages/inviteAccept'
 import { StoreRegisterPage } from '../../pages/storeRegister'
+
 import { DefaultLayout } from './layouts/DefaultLayout.tsx'
 import { requireAuth } from "./loaders/requireAuth.ts";
 import { requireInviteAccess } from "./loaders/requireInviteAccess.ts";
@@ -43,6 +45,10 @@ const router = createBrowserRouter([
         path: '/store/register',
         loader: requireAuth,
         element: <StoreRegisterPage />,
+    },
+    {
+        path: '/payslip',
+        element: <PayslipPage />,
     },
     {
         element: <DefaultLayout />,
