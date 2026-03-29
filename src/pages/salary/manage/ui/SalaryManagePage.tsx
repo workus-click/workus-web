@@ -5,6 +5,9 @@ import CalculatorIcon from '@mui/icons-material/Calculate';
 import DeadlineIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import { useState } from 'react';
+import { SalaryFormulaSettingDialog } from '../../../widgets/salary/salaryFormulaSettingDialog';
+import { ToastCalendar, type CalendarEvent } from '../../../shared/ui/calendar';
+import { WeeklySummary } from '../../../features/salary/payroll-summary';
 import { SalaryFormulaSettingDialog } from '../../../../widgets/salary/salaryFormulaSettingDialog';
 
 
@@ -50,10 +53,68 @@ export function SalaryManagePage() {
     ];
 
     const [salaryFormulaSettingDialogOpen, setSalaryFormulaSettingDialogOpen] = useState(false);
+    // 귀속월 state
+    const [year, setYear] = useState(new Date().getFullYear());
+    const [month, setMonth] = useState(new Date().getMonth() + 1);
+
+    // 테스트 이벤트 데이터 (employee_work_schedule + attendance_result)
+    const [events] = useState<CalendarEvent[]>([
+        {
+            id: '1',
+            title: '김훈이',
+            start: new Date(year, month - 1, 3, 9, 0),
+            end: new Date(year, month - 1, 3, 18, 0),
+            employeeType: 'P',
+        },
+        {
+            id: '2',
+            title: '김훈이',
+            start: new Date(year, month - 1, 4, 9, 0),
+            end: new Date(year, month - 1, 4, 18, 0),
+            employeeType: 'P',
+        },
+        {
+            id: '3',
+            title: '김훈이',
+            start: new Date(year, month - 1, 5, 14, 0),
+            end: new Date(year, month - 1, 5, 22, 0),
+            employeeType: 'P',
+        },
+        {
+            id: '4',
+            title: '김훈이',
+            start: new Date(year, month - 1, 10, 9, 0),
+            end: new Date(year, month - 1, 10, 18, 0),
+            employeeType: 'P',
+        },
+        {
+            id: '5',
+            title: '김훈이',
+            start: new Date(year, month - 1, 15, 9, 0),
+            end: new Date(year, month - 1, 15, 18, 0),
+            employeeType: 'P',
+        },
+    ]);
 
     const handleSalaryFormulaSettingDialogOpen = () => {
         setSalaryFormulaSettingDialogOpen(true);
     };
+
+    const handleNavigate = (newYear: number, newMonth: number) => {
+        setYear(newYear);
+        setMonth(newMonth);
+    };
+
+    const handleAttributionMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value; // format: YYYY-MM
+        if (value) {
+            const [newYear, newMonth] = value.split('-').map(Number);
+            setYear(newYear);
+            setMonth(newMonth);
+        }
+    };
+
+    const attributionMonthValue = `${year}-${String(month).padStart(2, '0')}`;
 
     return (
         <Box>
@@ -88,7 +149,13 @@ export function SalaryManagePage() {
                 >
                     <Stack direction='row' spacing='10px' alignItems='center'>
                         <Typography>귀속월</Typography>
-                        <MyTextField type='month' size='small' sx={{ flex: 1 }} />
+                        <MyTextField
+                            type='month'
+                            size='small'
+                            sx={{ flex: 1 }}
+                            value={attributionMonthValue}
+                            onChange={handleAttributionMonthChange}
+                        />
                     </Stack>
 
                     <Stack direction='row' spacing='10px' alignItems='center'>
@@ -148,10 +215,20 @@ export function SalaryManagePage() {
                         </Stack>
                     </Stack>
 
-                    {/* 캘린더 영역 */}
-                    <Box sx={{ border: '1px solid', borderColor: 'divider', p: 2, minHeight: 500 }}>
-                        <Typography color="text.secondary">캘린더 영역</Typography>
-                    </Box>
+                    {/* 캘린더 + 주차별 집계 */}
+                    <Stack direction='row' sx={{ pl: 1, pt: 1, borderLeft: '1px solid', borderColor: 'divider', alignItems: 'stretch' }}>
+                        <Box sx={{ flex: 1 }}>
+                            <ToastCalendar
+                                year={year}
+                                month={month}
+                                events={events}
+                                onNavigate={handleNavigate}
+                            />
+                        </Box>
+                        <Box sx={{ width: 220, flexShrink: 0 }}>
+                            <WeeklySummary events={events} year={year} month={month} />
+                        </Box>
+                    </Stack>
 
                     {/* 지급항목 / 공제항목 */}
                     <Stack spacing={2} sx={{ mt: 2 }}>

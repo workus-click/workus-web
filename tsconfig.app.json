@@ -6,6 +6,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "types": ["vite/client"],
+    "paths": {"@toast-ui/calendar": ["./node_modules/@toast-ui/calendar/types/index.d.ts" ]},
     "skipLibCheck": true,
 
     /* Bundler mode */
